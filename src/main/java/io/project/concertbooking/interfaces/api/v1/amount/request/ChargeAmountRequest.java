@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class ChargeAmountRequest {
     private Long userId;
-    private Integer cash;
+    private Integer amount;
 }

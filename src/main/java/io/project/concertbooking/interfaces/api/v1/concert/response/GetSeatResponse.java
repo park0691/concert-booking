@@ -7,13 +7,16 @@ import java.util.List;
 
 @Getter
 public class GetSeatResponse {
+    private Long concertScheduleId;
     private List<Seat> seats;
 
     @Builder
-    private GetSeatResponse(List<Seat> seats) {
+    private GetSeatResponse(Long concertScheduleId, List<Seat> seats) {
+        this.concertScheduleId = concertScheduleId;
         this.seats = seats;
     }
 
+    @Getter
     public static class Seat {
         private Long seatId;
         private Integer seatNumber;

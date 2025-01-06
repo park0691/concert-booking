@@ -12,11 +12,10 @@ import java.time.Month;
 @RequestMapping("/api/v1/payments")
 public class PaymentController {
 
-    @PostMapping("/schedules/{concertScheduleId}/seats/{seatId}")
+    @PostMapping("/seat-reservations/{seatReservationId}")
     public ApiResponse<?> paySeat(
             @RequestHeader("Queue-Token") String queueToken,
-            @PathVariable("concertScheduleId") Long concertScheduleId,
-            @PathVariable("seatId") Long seatId,
+            @PathVariable("seatReservationId") Long seatReservationId,
             @RequestBody PaySeatRequest paySeatRequest
     ) {
         return ApiResponse.ok(PaySeatResponse.builder()

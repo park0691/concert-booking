@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/queue")
 public class QueueController {
 
-    @PostMapping("/token")
+    @PostMapping("/tokens")
     public ApiResponse<?> issueQueueToken(@RequestBody IssueQueueTokenRequest request) {
         return ApiResponse.ok(IssueQueueTokenResponse.builder()
                 .token("123e4567-e89b-12d3-a456-426614174000")
