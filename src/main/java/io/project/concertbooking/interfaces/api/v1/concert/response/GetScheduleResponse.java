@@ -6,12 +6,12 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class GetReservationScheduleResponse {
+public class GetScheduleResponse {
     private Long scheduleId;
     private LocalDateTime scheduleDt;
 
     @Builder
-    private GetReservationScheduleResponse(Long scheduleId, LocalDateTime scheduleDt) {
+    private GetScheduleResponse(Long scheduleId, LocalDateTime scheduleDt) {
         this.scheduleId = scheduleId;
         this.scheduleDt = scheduleDt;
     }

@@ -1,4 +1,4 @@
-package io.project.concertbooking.interfaces.api.v1.concert.request;
+package io.project.concertbooking.interfaces.api.v1.payment.request;
 
 import lombok.Getter;
 
