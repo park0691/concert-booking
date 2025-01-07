@@ -9,16 +9,16 @@
 
 #### REQUEST
 - Body
-| 항목 | 설명 |
-| -- | -- |
-| userId | 사용자 ID |
+    | 항목 | 설명 |
+    | -- | -- |
+    | userId | 사용자 ID |
 
 - Body Example
-```json
-{
-    "userId": 2
-}
-```
+    ```json
+    {
+        "userId": 2
+    }
+    ```
 
 #### RESPONSE Example (200)
 ```json
@@ -41,14 +41,14 @@
 
 #### REQUEST
 - Header
-| 항목 | 설명 |
-| -- | -- |
-| Queue-Token | 대기열 토큰 값 |
+    | 항목 | 설명 |
+    | -- | -- |
+    | Queue-Token | 대기열 토큰 값 |
 
 - Path Variables
-| 항목 | 설명 |
-| -- | -- |
-| concertId | 콘서트 ID |
+    | 항목 | 설명 |
+    | -- | -- |
+    | concertId | 콘서트 ID |
 
 #### RESPONSE Example (200)
 ```json
@@ -81,14 +81,14 @@
 
 #### REQUEST
 - Header
-| 항목 | 설명 |
-| -- | -- |
-| Queue-Token | 대기열 토큰 값 |
+    | 항목 | 설명 |
+    | -- | -- |
+    | Queue-Token | 대기열 토큰 값 |
 
 - Path Variables
-| 항목 | 설명 |
-| -- | -- |
-| concertScheduleId | 콘서트 스케줄 ID |
+    | 항목 | 설명 |
+    | -- | -- |
+    | concertScheduleId | 콘서트 스케줄 ID |
 
 #### RESPONSE Example (200)
 ```json
@@ -123,27 +123,27 @@
 
 #### REQUEST
 - Header
-| 항목 | 설명 |
-| -- | -- |
-| Queue-Token | 대기열 토큰 값 |
+    | 항목 | 설명 |
+    | -- | -- |
+    | Queue-Token | 대기열 토큰 값 |
 
 - Path Variables
-| 항목 | 설명 |
-| -- | -- |
-| concertScheduleId | 콘서트 스케줄 ID |
-| seatId | 좌석 ID |
+    | 항목 | 설명 |
+    | -- | -- |
+    | concertScheduleId | 콘서트 스케줄 ID |
+    | seatId | 좌석 ID |
 
 - Body
-| 항목 | 설명 |
-| -- | -- |
-| userId | 사용자 ID |
+    | 항목 | 설명 |
+    | -- | -- |
+    | userId | 사용자 ID |
 
 - Body Example
-```json
-{
-    "userId": 2
-}
-```
+    ```json
+    {
+        "userId": 2
+    }
+    ```
 
 #### RESPONSE (200)
 ```json
@@ -165,21 +165,15 @@
 
 #### Endpoint
 - Method : `GET`
-- URL : `/api/v1/points`
+- URL : `/api/v1/points/user/{userId}`
 
 
 #### REQUEST
-- Body
-| 항목 | 설명 |
-| -- | -- |
-| userId | 사용자 ID |
+- Path Variables
+    | 항목 | 설명 |
+    | -- | -- |
+    | userId | 사용자 ID |
 
-- Body Example
-```json
-{
-    "userId": 2
-}
-```
 
 #### RESPONSE Example (200)
 ```json
@@ -203,18 +197,18 @@
 
 #### REQUEST
 - Body
-| 항목 | 설명 |
-| -- | -- |
-| userId | 사용자 ID |
-| point | 포인트 충전 금액 |
+    | 항목 | 설명 |
+    | -- | -- |
+    | userId | 사용자 ID |
+    | point | 포인트 충전 금액 |
 
 - Body Example
-```json
-{
-    "userId": 2,
-    "point": 30000
-}
-```
+    ```json
+    {
+        "userId": 2,
+        "point": 30000
+    }
+    ```
 
 #### RESPONSE Example (200)
 ```json
@@ -237,28 +231,28 @@
 
 #### REQUEST
 - Header
-| 항목 | 설명 |
-| -- | -- |
-| Queue-Token | 대기열 토큰 값 |
+    | 항목 | 설명 |
+    | -- | -- |
+    | Queue-Token | 대기열 토큰 값 |
 
 - Path Variables
-| 항목 | 설명 |
-| -- | -- |
-| seatReservationId | 좌석 예약 ID |
+    | 항목 | 설명 |
+    | -- | -- |
+    | seatReservationId | 좌석 예약 ID |
 
 - Body
-| 항목 | 설명 |
-| -- | -- |
-| userId | 사용자 ID |
-| paymentPrice | 결제 금액 |
+    | 항목 | 설명 |
+    | -- | -- |
+    | userId | 사용자 ID |
+    | paymentPrice | 결제 금액 |
 
 - Body Example
-```json
-{
-    "userId": "testuser",
-    "price": 30000
-}
-```
+    ```json
+    {
+        "userId": "testuser",
+        "price": 30000
+    }
+    ```
 
 #### RESPONSE (200)
 ```json
