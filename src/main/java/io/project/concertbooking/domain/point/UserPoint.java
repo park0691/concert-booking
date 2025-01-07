@@ -2,6 +2,7 @@ package io.project.concertbooking.domain.point;
 
 import io.project.concertbooking.domain.user.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,11 @@ public class UserPoint {
 
     @Column(name = "AMOUNT")
     private Integer amount;
+
+    @Builder
+    private UserPoint(Long userPointId, User user, Integer amount) {
+        this.userPointId = userPointId;
+        this.user = user;
+        this.amount = amount;
+    }
 }
