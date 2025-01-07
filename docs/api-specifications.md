@@ -159,13 +159,13 @@
 }
 ```
 
-### 5. 잔액 조회
+### 5. 포인트 잔액 조회
 #### Description
-- 잔액을 조회한다.
+- 포인트 잔액을 조회한다.
 
 #### Endpoint
 - Method : `GET`
-- URL : `/api/v1/amounts`
+- URL : `/api/v1/points`
 
 
 #### REQUEST
@@ -187,18 +187,18 @@
     "code": 200,
     "message": "Success",
     "data": {
-        "amount": 10000
+        "pointAmount": 10000
     }
 }
 ```
 
-### 6. 캐시 충전
+### 6. 포인트 잔액 충전
 #### Description
-- 잔액을 충전한다.
+- 포인트 잔액을 충전한다.
 
 #### Endpoint
 - Method : `POST`
-- URL : `/api/v1/amounts/charge`
+- URL : `/api/v1/points/charge`
 
 
 #### REQUEST
@@ -206,13 +206,13 @@
 | 항목 | 설명 |
 | -- | -- |
 | userId | 사용자 ID |
-| amount | 충전 금액 |
+| point | 포인트 충전 금액 |
 
 - Body Example
 ```json
 {
     "userId": 2,
-    "amount": 30000
+    "point": 30000
 }
 ```
 
@@ -220,7 +220,10 @@
 ```json
 {
     "code": 200,
-    "message": "Success"
+    "message": "Success",
+    "data": {
+        "currentPointAmount": 10000
+    }
 }
 ```
 
