@@ -5,20 +5,29 @@ import io.project.concertbooking.interfaces.api.v1.concert.request.ReserveSeatRe
 import io.project.concertbooking.interfaces.api.v1.concert.response.GetScheduleResponse;
 import io.project.concertbooking.interfaces.api.v1.concert.response.GetSeatResponse;
 import io.project.concertbooking.interfaces.api.v1.concert.response.ReserveSeatResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
+@Tag(name = "콘서트 조회 및 예약")
 @RestController
 @RequestMapping("/api/v1/concerts")
 public class ConcertController {
 
+    @Operation(summary = "콘서트 스케줄 조회", description = "콘서트 ID로 콘서트의 스케줄을 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")
+    })
     @GetMapping("/{concertId}/schedules")
     public ApiResponse<?> getSchedule(
-//            @RequestHeader("Queue-Token") String queueToken,
-            @PathVariable("concertId") Long concertId
+            @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,
+            @PathVariable("concertId") @Parameter(description = "콘서트 ID", example = "9") Long concertId
     ) {
         return ApiResponse.ok(GetScheduleResponse.builder()
                         .concertId(2L)
@@ -37,10 +46,14 @@ public class ConcertController {
         );
     }
 
+    @Operation(summary = "콘서트 좌석 조회", description = "콘서트 스케줄 ID로 예약 가능한 콘서트 좌석을 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")
+    })
     @GetMapping("/schedules/{concertScheduleId}/seats")
     public ApiResponse<?> getSeat(
-//            @RequestHeader("Queue-Token") String queueToken,
-            @PathVariable("concertScheduleId") Long concertScheduleId
+            @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,
+            @PathVariable("concertScheduleId") @Parameter(description = "콘서트 스케줄 ID", example = "1") Long concertScheduleId
     ) {
         return ApiResponse.ok(GetSeatResponse.builder()
                         .concertScheduleId(11L)
@@ -61,11 +74,15 @@ public class ConcertController {
         );
     }
 
+    @Operation(summary = "콘서트 좌석 예약(임시 배정)", description = "사용자, 콘서트 스케줄 ID로 콘서트 좌석을 예약(임시 배정)합니다. 예약 후 5분 이내 결제하지 않은 경우 좌석의 임시 배정은 취소됩니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "예약 성공")
+    })
     @PostMapping("/schedules/{concertScheduleId}/reservation/seats/{seatId}")
     public ApiResponse<?> reserveSeat(
-//            @RequestHeader("Queue-Token") String queueToken,
-            @PathVariable("concertScheduleId") Long concertScheduleId,
-            @PathVariable("seatId") Long seatId,
+            @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,
+            @PathVariable("concertScheduleId") @Parameter(description = "콘서트 스케줄 ID", example = "1") Long concertScheduleId,
+            @PathVariable("seatId") @Parameter(description = "좌석 ID", example = "31") Long seatId,
             @RequestBody ReserveSeatRequest reserveSeatRequest
     ) {
         return ApiResponse.ok(ReserveSeatResponse.builder()

@@ -1,3 +1,31 @@
 spring:
   application:
     name: concert-booking
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: 
+    username:
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        highlight_sql: true
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+springdoc:
+  packages-to-scan: io.project.concertbooking.interfaces.api.v1
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /api/v1/docs
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
