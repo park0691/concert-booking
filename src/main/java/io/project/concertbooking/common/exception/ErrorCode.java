@@ -15,7 +15,8 @@ public enum ErrorCode {
     /* 401 UNAUTHORIZED : 인증되지 않은 요청 */
 
     /* 404 NOT_FOUND : Resource를 찾을 수 없음 */
-    USER_NOT_FOUND(NOT_FOUND, "해당 유저의 정보를 찾을 수 없습니다.");
+    USER_NOT_FOUND(NOT_FOUND, "해당 유저의 정보를 찾을 수 없습니다."),
+    TOKEN_NOT_FOUND(NOT_FOUND, "발급되지 않은 대기열 토큰입니다.");
 
     /* 409 CONFLICT : Resource의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
 

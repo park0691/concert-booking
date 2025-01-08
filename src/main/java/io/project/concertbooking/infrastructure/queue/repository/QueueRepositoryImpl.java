@@ -23,4 +23,14 @@ public class QueueRepositoryImpl implements IQueueRepository {
     public Optional<Queue> findByIdAndStatus(Long id, QueueStatus status) {
         return queueJpaRepository.findByIdAndStatus(id, status);
     }
+
+    @Override
+    public Optional<Queue> findByToken(String token) {
+        return queueJpaRepository.findByToken(token);
+    }
+
+    @Override
+    public Integer findCountByIdAndStatus(Long id, QueueStatus status) {
+        return queueJpaRepository.findCountByIdAndStatus(id, status);
+    }
 }
