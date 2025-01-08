@@ -100,11 +100,11 @@ class QueueServiceTest {
                 .willReturn(queue);
 
         // when
-        Queue resultQueue = queueService.createQueueToken(user);
+        String token = queueService.createQueueToken(user);
 
         // then
-        assertThat(resultQueue).isNotNull();
-        assertThat(resultQueue).usingRecursiveComparison().isEqualTo(queue);
+        assertThat(token).isNotNull();
+        assertThat(token).isNotBlank();
     }
 
     @Nested

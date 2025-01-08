@@ -25,11 +25,13 @@ public class QueueService {
         queueRepository.save(queue);
     }
 
-    public Queue createQueueToken(User user) {
+    public String createQueueToken(User user) {
         String token = UUID.randomUUID().toString();
-        return queueRepository.save(
+        Queue queue = queueRepository.save(
                 Queue.create(user, token)
         );
+
+        return queue.getToken();
     }
 
     public Queue findByToken(String token) {
