@@ -15,12 +15,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class QueueServiceTest {
@@ -157,5 +161,20 @@ class QueueServiceTest {
         // then
         assertThat(waitingCount).isNotNull();
         assertThat(waitingCount).isEqualTo(12);
+    }
+
+    @DisplayName("활성화 가능한 최대 큐 크기만큼 대기열이 활성화되어 있으면 큐 활성화 로직은 작동하지 않는다.")
+    @Test
+    void enqueueByActivatingWaitingTokenWhenMaxQueueActivated() {
+        // given
+        given(queueRepository.findCountByStatus(any(QueueStatus.class)))
+                .willReturn(100L);
+
+        // when
+        queueService.enqueueByActivatingWaitingToken();
+
+        // then
+        verify(queueRepository, never()).findAllWaitingLimit(any(Integer.class));
+        verify(queueRepository, never()).updateStatusByIds(any(QueueStatus.class), anyList());
     }
 }
