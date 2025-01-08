@@ -36,32 +36,35 @@ class QueueServiceTest {
             .build();
 
     @Nested
-    @DisplayName("findByIdAndStatusWithNull 테스트")
+    @DisplayName("findByIdAndStatus() 테스트")
     class FindByIdAndStatusTest {
 
-        @DisplayName("존재하지 않는 사용자 ID, 상태로 Queue를 조회하면 빈 Optional을 반환한다.")
+        @DisplayName("존재하지 않는 사용자, 상태로 대기열을 조회하면 빈 Optional을 반환한다.")
         @Test
         void findByIdAndStatusWithEmptyId() {
             // given
-            Long userId = 1L;
+            User user = fixtureMonkey.giveMeOne(User.class);
 
             // when
-            Optional<Queue> queueOpt = queueService.findByIdAndStatus(userId, QueueStatus.WAITING);
+            Optional<Queue> queueOpt = queueService.findByUserAndStatus(user, QueueStatus.WAITING);
 
             // then
             assertThat(queueOpt.isPresent()).isFalse();
         }
 
-        @DisplayName("존재하는 사용자 ID, 상태로 Queue를 조회하면 Null이 아닌 Optional<Queue>를 반환한다.")
+        @DisplayName("존재하는 사용자, 상태로 대기열을 조회하면 실제 대기열을 담은 Optional<Queue>를 반환한다.")
         @Test
         void findByIdAndStatus() {
             // given
-            Queue queue = fixtureMonkey.giveMeOne(Queue.class);
-            given(queueService.findByIdAndStatus(any(Long.class), any(QueueStatus.class)))
+            User user = fixtureMonkey.giveMeOne(User.class);
+            Queue queue = fixtureMonkey.giveMeBuilder(Queue.class)
+                    .set("user", user)
+                    .sample();
+            given(queueService.findByUserAndStatus(any(User.class), any(QueueStatus.class)))
                     .willReturn(Optional.of(queue));
 
             // when
-            Optional<Queue> queueOpt = queueService.findByIdAndStatus(1L, QueueStatus.WAITING);
+            Optional<Queue> queueOpt = queueService.findByUserAndStatus(user, QueueStatus.WAITING);
 
             // then
             assertThat(queueOpt.isPresent()).isTrue();
@@ -105,7 +108,7 @@ class QueueServiceTest {
     }
 
     @Nested
-    @DisplayName("findByToken 테스트")
+    @DisplayName("findByToken() 테스트")
     class FindByTokenTest {
 
         @DisplayName("존재하지 않는 토큰으로 대기열을 조회하면 예외가 발생한다.")

@@ -2,6 +2,7 @@ package io.project.concertbooking.infrastructure.queue.repository;
 
 import io.project.concertbooking.domain.queue.Queue;
 import io.project.concertbooking.domain.queue.enums.QueueStatus;
+import io.project.concertbooking.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface QueueJpaRepository extends JpaRepository<Queue, Long> {
-    Optional<Queue> findByIdAndStatus(Long id, QueueStatus status);
+    Optional<Queue> findByUserAndStatus(User user, QueueStatus status);
 
     Optional<Queue> findByToken(String token);
 

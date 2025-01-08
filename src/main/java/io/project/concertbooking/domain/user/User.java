@@ -25,9 +25,4 @@ public class User {
         this.userId = userId;
         this.amount = amount;
     }
-
-    public static User createUser() {
-        return User.builder()
-                .build();
-    }
 }

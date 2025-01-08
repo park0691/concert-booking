@@ -16,8 +16,8 @@ public class QueueService {
 
     private final IQueueRepository queueRepository;
 
-    public Optional<Queue> findByIdAndStatus(Long userId, QueueStatus queueStatus) {
-        return queueRepository.findByIdAndStatus(userId, queueStatus);
+    public Optional<Queue> findByUserAndStatus(User user, QueueStatus queueStatus) {
+        return queueRepository.findByUserAndStatus(user, queueStatus);
     }
 
     public void expire(Queue queue) {

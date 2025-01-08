@@ -3,6 +3,7 @@ package io.project.concertbooking.infrastructure.queue.repository;
 import io.project.concertbooking.domain.queue.IQueueRepository;
 import io.project.concertbooking.domain.queue.Queue;
 import io.project.concertbooking.domain.queue.enums.QueueStatus;
+import io.project.concertbooking.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -20,8 +21,8 @@ public class QueueRepositoryImpl implements IQueueRepository {
     }
 
     @Override
-    public Optional<Queue> findByIdAndStatus(Long id, QueueStatus status) {
-        return queueJpaRepository.findByIdAndStatus(id, status);
+    public Optional<Queue> findByUserAndStatus(User user, QueueStatus status) {
+        return queueJpaRepository.findByUserAndStatus(user, status);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package io.project.concertbooking.domain.user;
 
+import com.navercorp.fixturemonkey.FixtureMonkey;
+import com.navercorp.fixturemonkey.api.introspector.BuilderArbitraryIntrospector;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +27,10 @@ class UserServiceTest {
     @InjectMocks
     UserService userService;
 
+    FixtureMonkey fixtureMonkey = FixtureMonkey.builder()
+            .objectIntrospector(BuilderArbitraryIntrospector.INSTANCE)
+            .build();
+
     @DisplayName("존재하지 않는 유저 아이디로 조회하면 예외가 발생한다.")
     @Test
     void findByIdWithInvalidUserId() {
@@ -41,7 +47,7 @@ class UserServiceTest {
     @Test
     void findById() {
         // given
-        User user = User.createUser();
+        User user = fixtureMonkey.giveMeOne(User.class);
         given(userRepository.findById(any(Long.class)))
                 .willReturn(Optional.of(user));
 
