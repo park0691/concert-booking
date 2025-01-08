@@ -36,12 +36,12 @@ class QueueServiceTest {
             .build();
 
     @Nested
-    @DisplayName("findByIdAndStatus() 테스트")
-    class FindByIdAndStatusTest {
+    @DisplayName("findByUserAndStatus() 테스트")
+    class FindByUserAndStatusest {
 
-        @DisplayName("존재하지 않는 사용자, 상태로 대기열을 조회하면 빈 Optional을 반환한다.")
+        @DisplayName("존재하지 않는 사용자, 상태로 큐(대기열)를 조회하면 빈 Optional을 반환한다.")
         @Test
-        void findByIdAndStatusWithEmptyId() {
+        void findByUserAndStatusWithEmptyId() {
             // given
             User user = fixtureMonkey.giveMeOne(User.class);
 
@@ -52,9 +52,9 @@ class QueueServiceTest {
             assertThat(queueOpt.isPresent()).isFalse();
         }
 
-        @DisplayName("존재하는 사용자, 상태로 대기열을 조회하면 실제 대기열을 담은 Optional<Queue>를 반환한다.")
+        @DisplayName("존재하는 사용자, 상태로 대기열을 조회하면 실제 큐(대기열)를 담은 Optional<Queue>를 반환한다.")
         @Test
-        void findByIdAndStatus() {
+        void findByUserAndStatus() {
             // given
             User user = fixtureMonkey.giveMeOne(User.class);
             Queue queue = fixtureMonkey.giveMeBuilder(Queue.class)
@@ -73,7 +73,7 @@ class QueueServiceTest {
 
     }
 
-    @DisplayName("큐 토큰을 만료시킨다.")
+    @DisplayName("큐(대기열) 토큰을 만료시킨다.")
     @Test
     void expire() {
         // given
@@ -88,7 +88,7 @@ class QueueServiceTest {
         assertThat(queue.getStatus()).isEqualTo(QueueStatus.EXPIRED);
     }
 
-    @DisplayName("대기열 토큰을 생성한다.")
+    @DisplayName("큐(대기열)를 토큰을 생성한다.")
     @Test
     void createQueueToken() {
         // given
@@ -111,7 +111,7 @@ class QueueServiceTest {
     @DisplayName("findByToken() 테스트")
     class FindByTokenTest {
 
-        @DisplayName("존재하지 않는 토큰으로 대기열을 조회하면 예외가 발생한다.")
+        @DisplayName("존재하지 않는 토큰으로 큐(대기열)를 조회하면 예외가 발생한다.")
         @Test
         void findByTokenWithEmptyToken() {
             // given
@@ -123,7 +123,7 @@ class QueueServiceTest {
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TOKEN_NOT_FOUND);
         }
 
-        @DisplayName("존재하는 토큰으로 대기열을 조회한다.")
+        @DisplayName("존재하는 토큰으로 큐(대기열)를 조회한다.")
         @Test
         void findByToken() {
             // given
@@ -144,7 +144,7 @@ class QueueServiceTest {
 
     }
 
-    @DisplayName("입력된 대기열 ID 보다 작은 대기 중인 대기열의 수를 반환한다.")
+    @DisplayName("입력된 큐(대기열) ID를 통해 대기 순번을 반환한다.")
     @Test
     void findWaitingCount() {
         // given

@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class QueueTest {
 
-    @DisplayName("대기열 토큰을 만료시킨다.")
+    @DisplayName("큐(대기열) 토큰을 만료시킨다.")
     @ParameterizedTest
     @EnumSource(value = QueueStatus.class, names = {"WAITING", "ACTIVATED"})
     void expireQueueToken(QueueStatus status) {
