@@ -7,15 +7,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "USER_POINT")
+@Table(name = "POINT")
 @NoArgsConstructor
 @Getter
-public class UserPoint {
+public class Point {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_POINT_ID", updatable = false)
-    private Long userPointId;
+    @Column(name = "POINT_ID", updatable = false)
+    private Long pointId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -25,9 +25,19 @@ public class UserPoint {
     private Integer amount;
 
     @Builder
-    private UserPoint(Long userPointId, User user, Integer amount) {
-        this.userPointId = userPointId;
+    private Point(User user, Integer amount) {
         this.user = user;
         this.amount = amount;
+    }
+
+    public static Point createPoint(User user, Integer amount) {
+        return Point.builder()
+                .user(user)
+                .amount(amount)
+                .build();
+    }
+
+    public void charge(Integer point) {
+        this.amount += point;
     }
 }

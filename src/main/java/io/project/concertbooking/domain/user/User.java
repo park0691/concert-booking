@@ -1,6 +1,6 @@
 package io.project.concertbooking.domain.user;
 
-import io.project.concertbooking.domain.point.UserPoint;
+import io.project.concertbooking.domain.point.Point;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,11 +18,10 @@ public class User {
     private Long userId;
 
     @OneToOne(mappedBy = "user")
-    private UserPoint amount;
+    private Point point;
 
     @Builder
-    private User(Long userId, UserPoint amount) {
-        this.userId = userId;
-        this.amount = amount;
+    private User(Point point) {
+        this.point = point;
     }
 }
