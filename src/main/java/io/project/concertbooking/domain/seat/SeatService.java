@@ -55,4 +55,14 @@ public class SeatService {
         List<Seat> seats = expireTargets.stream().map(SeatReservation::getSeat).toList();
         seatRepository.updateSeatStatusIn(SeatStatus.EMPTY, seats);
     }
+
+    public SeatReservation findReservation(Long reservationId) {
+        return seatRepository.findReservationById(reservationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+    }
+
+    public void finalizeReservation(SeatReservation reservation) {
+        reservation.confirm();
+        seatRepository.saveReservation(reservation);
+    }
 }

@@ -44,4 +44,8 @@ public class Seat {
     void reserve() {
         this.status = SeatStatus.RESERVED;
     }
+
+    void occupy() {
+        this.status = SeatStatus.OCCUPIED;
+    }
 }

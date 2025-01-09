@@ -65,4 +65,9 @@ public class SeatReservation {
                 .status(status)
                 .build();
     }
+
+    public void confirm() {
+        this.status = SeatReservationStatus.CONFIRMED;
+        seat.occupy();
+    }
 }
