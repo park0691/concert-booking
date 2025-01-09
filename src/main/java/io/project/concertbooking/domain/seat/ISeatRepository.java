@@ -20,4 +20,6 @@ public interface ISeatRepository {
     Long updateReservationStatusIn(SeatReservationStatus status, List<SeatReservation> reservations);
 
     Long updateSeatStatusIn(SeatStatus status, List<Seat> seats);
+
+    Optional<SeatReservation> findReservationById(Long reservationId);
 }

@@ -51,4 +51,9 @@ public class SeatRepositoryImpl implements ISeatRepository {
     public Long updateSeatStatusIn(SeatStatus status, List<Seat> seats) {
         return seatQueryRepository.updateSeatStatusByIdsIn(status, seats);
     }
+
+    @Override
+    public Optional<SeatReservation> findReservationById(Long reservationId) {
+        return seatReservationJpaRepository.findById(reservationId);
+    }
 }

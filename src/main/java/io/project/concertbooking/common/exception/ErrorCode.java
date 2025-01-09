@@ -11,6 +11,7 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode {
     /* 400 BAD_REQUEST : 잘못된 요청 */
     SEAT_NOT_AVAILABLE(BAD_REQUEST, "이미 예약 또는 확정된 좌석입니다."),
+    POINT_INSUFFICIENT(BAD_REQUEST, "포인트가 부족합니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 요청 */
 
@@ -19,6 +20,7 @@ public enum ErrorCode {
     POINT_NOT_FOUND(NOT_FOUND, "유저의 포인트 정보를 찾을 수 없습니다."),
     CONCERT_NOT_FOUND(NOT_FOUND, "콘서트 정보를 찾을 수 없습니다."),
     SCHEDULE_NOT_FOUND(NOT_FOUND, "콘서트 스케줄을 찾을 수 없습니다."),
+    RESERVATION_NOT_FOUND(NOT_FOUND, "좌석 예약을 찾을 수 없습니다."),
     SEAT_NOT_FOUND(NOT_FOUND, "좌석 정보를 찾을 수 없습니다."),
     TOKEN_NOT_FOUND(NOT_FOUND, "발급되지 않은 대기열 토큰입니다.");
 

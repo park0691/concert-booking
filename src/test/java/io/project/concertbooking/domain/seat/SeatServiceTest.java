@@ -5,6 +5,7 @@ import com.navercorp.fixturemonkey.api.introspector.BuilderArbitraryIntrospector
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
 import io.project.concertbooking.domain.concert.ConcertSchedule;
+import io.project.concertbooking.domain.seat.enums.SeatReservationStatus;
 import io.project.concertbooking.domain.seat.enums.SeatStatus;
 import io.project.concertbooking.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
@@ -133,5 +134,53 @@ class SeatServiceTest {
 
         // then
         verify(seatRepository, times(1)).saveReservation(any(SeatReservation.class));
+    }
+
+    @DisplayName("존재하지 않는 예약 아이디로 예약을 조회하면 예외가 발생한다.")
+    @Test
+    void findReservationWithInvalidReservationId() {
+        // given
+        Long reservationId = 1L;
+
+        // when, then
+        assertThatThrownBy(() -> seatService.findReservation(reservationId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.RESERVATION_NOT_FOUND);
+    }
+
+    @DisplayName("존재하는 예약 아이디로 예약을 조회한다.")
+    @Test
+    void findReservation() {
+        // given
+        SeatReservation reservation = fixtureMonkey.giveMeOne(SeatReservation.class);
+        given(seatRepository.findReservationById(any(Long.class)))
+                .willReturn(Optional.of(reservation));
+
+        // when
+        SeatReservation foundReservation = seatService.findReservation(1L);
+
+        // then
+        assertThat(foundReservation).usingRecursiveComparison()
+                .isEqualTo(reservation);
+    }
+
+    @DisplayName("예약을 확정처리하면 예약 상태가 확정으로, 좌석 상태는 점유로 변경된다.")
+    @Test
+    void finalizeReservation() {
+        // given
+        Seat seat = fixtureMonkey.giveMeBuilder(Seat.class)
+                .set("status", SeatStatus.RESERVED)
+                .sample();
+        SeatReservation seatReservation = fixtureMonkey.giveMeBuilder(SeatReservation.class)
+                .set("seat", seat)
+                .set("status", SeatReservationStatus.RESERVED)
+                .sample();
+
+        // when
+        seatService.finalizeReservation(seatReservation);
+
+        // then
+        assertThat(seatReservation.getStatus()).isEqualTo(SeatReservationStatus.CONFIRMED);
+        assertThat(seatReservation.getSeat().getStatus()).isEqualTo(SeatStatus.OCCUPIED);
     }
 }

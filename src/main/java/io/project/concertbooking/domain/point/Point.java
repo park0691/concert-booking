@@ -1,5 +1,7 @@
 package io.project.concertbooking.domain.point;
 
+import io.project.concertbooking.common.exception.CustomException;
+import io.project.concertbooking.common.exception.ErrorCode;
 import io.project.concertbooking.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -39,5 +41,12 @@ public class Point {
 
     public void charge(Integer point) {
         this.amount += point;
+    }
+
+    public void use(Integer point) {
+        if (this.amount < point) {
+            throw new CustomException(ErrorCode.POINT_INSUFFICIENT);
+        }
+        this.amount -= point;
     }
 }
