@@ -26,8 +26,7 @@ public class ConcertSchedule {
     private LocalDateTime scheduleDt;
 
     @Builder
-    private ConcertSchedule(Long concertScheduleId, Concert concert, LocalDateTime scheduleDt) {
-        this.concertScheduleId = concertScheduleId;
+    private ConcertSchedule(Concert concert, LocalDateTime scheduleDt) {
         this.concert = concert;
         this.scheduleDt = scheduleDt;
     }

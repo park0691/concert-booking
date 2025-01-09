@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface IConcertRepository {
     Optional<Concert> findById(Long id);
     Page<ConcertSchedule> findAllScheduleByConcert(Concert concert, Pageable pageable);
-
+    Optional<ConcertSchedule> findScheduleById(Long id);
 }
