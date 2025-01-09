@@ -1,6 +1,7 @@
 package io.project.concertbooking.domain.concert;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,4 +24,11 @@ public class Concert {
 
     @OneToMany(mappedBy = "concert")
     private List<ConcertSchedule> concertSchedules = new ArrayList<>();
+
+    @Builder
+    private Concert(Long concertId, String name, List<ConcertSchedule> concertSchedules) {
+        this.concertId = concertId;
+        this.name = name;
+        this.concertSchedules = concertSchedules;
+    }
 }
