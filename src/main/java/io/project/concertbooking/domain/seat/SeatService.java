@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -44,5 +45,14 @@ public class SeatService {
                         user, seat, seat.getNumber(), seat.getPrice(), SeatReservationStatus.RESERVED
                 )
         );
+    }
+
+    @Transactional
+    public void expireReservation() {
+        LocalDateTime expiredDt = LocalDateTime.now().minusMinutes(5L);
+        List<SeatReservation> expireTargets = seatRepository.findReservationByStatusAndRegDtLt(SeatReservationStatus.RESERVED, expiredDt);
+        seatRepository.updateReservationStatusIn(SeatReservationStatus.EXPIRED, expireTargets);
+        List<Seat> seats = expireTargets.stream().map(SeatReservation::getSeat).toList();
+        seatRepository.updateSeatStatusIn(SeatStatus.EMPTY, seats);
     }
 }
