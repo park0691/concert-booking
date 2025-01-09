@@ -48,8 +48,8 @@ public class SeatService {
     }
 
     @Transactional
-    public void expireReservation() {
-        LocalDateTime expiredDt = LocalDateTime.now().minusMinutes(5L);
+    public void expireReservation(LocalDateTime now) {
+        LocalDateTime expiredDt = now.minusMinutes(5L);
         List<SeatReservation> expireTargets = seatRepository.findReservationByStatusAndRegDtLt(SeatReservationStatus.RESERVED, expiredDt);
         seatRepository.updateReservationStatusIn(SeatReservationStatus.EXPIRED, expireTargets);
         List<Seat> seats = expireTargets.stream().map(SeatReservation::getSeat).toList();

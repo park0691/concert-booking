@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface SeatReservationJpaRepository extends JpaRepository<SeatReservation, Long> {
     List<SeatReservation> findAllByStatusAndRegDtBefore(SeatReservationStatus status, LocalDateTime dateTime);
+    List<SeatReservation> findAllByStatus(SeatReservationStatus status);
 }
