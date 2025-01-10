@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class QueueService {
@@ -25,13 +24,11 @@ public class QueueService {
         return queueRepository.findByUserAndStatus(user, queueStatus);
     }
 
-    @Transactional
     public void expire(Queue queue) {
         queue.expireQueueToken();
         queueRepository.save(queue);
     }
 
-    @Transactional
     public String createQueueToken(User user) {
         String token = UUID.randomUUID().toString();
         Queue queue = queueRepository.save(
