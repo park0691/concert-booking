@@ -6,10 +6,12 @@ import io.project.concertbooking.domain.queue.enums.QueueStatus;
 import io.project.concertbooking.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class QueueService {
@@ -20,11 +22,13 @@ public class QueueService {
         return queueRepository.findByUserAndStatus(user, queueStatus);
     }
 
+    @Transactional
     public void expire(Queue queue) {
         queue.expireQueueToken();
         queueRepository.save(queue);
     }
 
+    @Transactional
     public String createQueueToken(User user) {
         String token = UUID.randomUUID().toString();
         Queue queue = queueRepository.save(
