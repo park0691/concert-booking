@@ -34,7 +34,7 @@ class ReservationServiceTest {
     IReservationRepository reservationRepository;
 
     @InjectMocks
-    SeatService seatService;
+    ReservationService reservationService;
 
     FixtureMonkey fixtureMonkey = FixtureMonkey.builder()
             .objectIntrospector(BuilderArbitraryIntrospector.INSTANCE)
@@ -52,7 +52,7 @@ class ReservationServiceTest {
                 .sample();
 
         // when, then
-        assertThatThrownBy(() -> seatService.createReservation(user, concertSchedule, seat))
+        assertThatThrownBy(() -> reservationService.createReservation(user, concertSchedule, seat))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SEAT_NOT_AVAILABLE);
     }
@@ -68,7 +68,7 @@ class ReservationServiceTest {
                 .sample();
 
         // when
-        seatService.createReservation(user, concertSchedule, seat);
+        reservationService.createReservation(user, concertSchedule, seat);
 
         // then
         verify(reservationRepository, times(1)).save(any(Reservation.class));
@@ -81,7 +81,7 @@ class ReservationServiceTest {
         Long reservationId = 1L;
 
         // when, then
-        assertThatThrownBy(() -> seatService.findReservation(reservationId))
+        assertThatThrownBy(() -> reservationService.findReservation(reservationId))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.RESERVATION_NOT_FOUND);
     }
@@ -95,7 +95,7 @@ class ReservationServiceTest {
                 .willReturn(Optional.of(reservation));
 
         // when
-        Reservation foundReservation = seatService.findReservation(1L);
+        Reservation foundReservation = reservationService.findReservation(1L);
 
         // then
         assertThat(foundReservation).usingRecursiveComparison()
@@ -115,7 +115,7 @@ class ReservationServiceTest {
                 .sample();
 
         // when
-        seatService.finalizeReservation(seatReservation);
+        reservationService.finalizeReservation(seatReservation);
 
         // then
         assertThat(seatReservation.getStatus()).isEqualTo(ReservationStatus.CONFIRMED);
