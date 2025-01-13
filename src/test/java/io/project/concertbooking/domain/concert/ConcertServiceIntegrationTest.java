@@ -1,6 +1,6 @@
 package io.project.concertbooking.domain.concert;
 
-import io.project.concertbooking.IntegrationTestSupport;
+import io.project.concertbooking.domain.support.IntegrationTestSupport;
 import io.project.concertbooking.infrastructure.concert.repository.ConcertJpaRepository;
 import io.project.concertbooking.infrastructure.concert.repository.ConcertScheduleJpaRepository;
 import net.jqwik.api.Arbitraries;
