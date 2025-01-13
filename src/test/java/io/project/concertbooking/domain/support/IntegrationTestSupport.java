@@ -1,4 +1,4 @@
-package io.project.concertbooking;
+package io.project.concertbooking.domain.support;
 
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.BuilderArbitraryIntrospector;
