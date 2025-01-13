@@ -4,6 +4,7 @@ import io.project.concertbooking.domain.concert.ConcertSchedule;
 import io.project.concertbooking.domain.seat.enums.SeatStatus;
 import io.project.concertbooking.domain.seat.enums.converter.SeatStatusConverter;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,4 +32,20 @@ public class Seat {
     @Column(name = "STATUS")
     @Convert(converter = SeatStatusConverter.class)
     private SeatStatus status;
+
+    @Builder
+    private Seat(ConcertSchedule concertSchedule, Integer number, Integer price, SeatStatus status) {
+        this.concertSchedule = concertSchedule;
+        this.number = number;
+        this.price = price;
+        this.status = status;
+    }
+
+    void reserve() {
+        this.status = SeatStatus.RESERVED;
+    }
+
+    void occupy() {
+        this.status = SeatStatus.OCCUPIED;
+    }
 }
