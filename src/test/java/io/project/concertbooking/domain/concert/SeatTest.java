@@ -1,8 +1,8 @@
-package io.project.concertbooking.domain.seat;
+package io.project.concertbooking.domain.concert;
 
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.BuilderArbitraryIntrospector;
-import io.project.concertbooking.domain.seat.enums.SeatStatus;
+import io.project.concertbooking.domain.concert.enums.SeatStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
