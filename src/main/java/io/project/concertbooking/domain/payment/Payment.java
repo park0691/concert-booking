@@ -7,11 +7,15 @@ import io.project.concertbooking.domain.payment.enums.PaymentStatus;
 import io.project.concertbooking.domain.seat.SeatReservation;
 import io.project.concertbooking.domain.user.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "PAYMENT")
 @NoArgsConstructor
@@ -42,6 +46,27 @@ public class Payment {
     @Convert(converter = PaymentStatusConverter.class)
     private PaymentStatus status;
 
+    @CreatedDate
     @Column(name = "REG_DT")
     private LocalDateTime regDt;
+
+    @Builder
+    private Payment(User user, SeatReservation seatReservation, Integer price, PaymentMethod method, PaymentStatus status, LocalDateTime regDt) {
+        this.user = user;
+        this.seatReservation = seatReservation;
+        this.price = price;
+        this.method = method;
+        this.status = status;
+        this.regDt = regDt;
+    }
+
+    public static Payment createPayment(User user, SeatReservation reservation, Integer price, PaymentMethod method, PaymentStatus status) {
+        return Payment.builder()
+                .user(user)
+                .seatReservation(reservation)
+                .price(price)
+                .method(method)
+                .status(status)
+                .build();
+    }
 }

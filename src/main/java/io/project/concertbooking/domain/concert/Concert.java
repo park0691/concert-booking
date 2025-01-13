@@ -26,8 +26,7 @@ public class Concert {
     private List<ConcertSchedule> concertSchedules = new ArrayList<>();
 
     @Builder
-    private Concert(Long concertId, String name, List<ConcertSchedule> concertSchedules) {
-        this.concertId = concertId;
+    private Concert(String name, List<ConcertSchedule> concertSchedules) {
         this.name = name;
         this.concertSchedules = concertSchedules;
     }

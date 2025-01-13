@@ -16,6 +16,7 @@ public class ConcertRepositoryImpl implements IConcertRepository {
 
     private final ConcertJpaRepository concertJpaRepository;
     private final ConcertScheduleQueryRepository concertScheduleQueryRepository;
+    private final ConcertScheduleJpaRepository concertScheduleJpaRepository;
 
     @Override
     public Optional<Concert> findById(Long id) {
@@ -25,5 +26,10 @@ public class ConcertRepositoryImpl implements IConcertRepository {
     @Override
     public Page<ConcertSchedule> findAllScheduleByConcert(Concert concert, Pageable pageable) {
         return concertScheduleQueryRepository.findAllByConcert(concert, pageable);
+    }
+
+    @Override
+    public Optional<ConcertSchedule> findScheduleById(Long id) {
+        return concertScheduleJpaRepository.findById(id);
     }
 }

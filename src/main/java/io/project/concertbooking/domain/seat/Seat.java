@@ -40,4 +40,12 @@ public class Seat {
         this.price = price;
         this.status = status;
     }
+
+    void reserve() {
+        this.status = SeatStatus.RESERVED;
+    }
+
+    void occupy() {
+        this.status = SeatStatus.OCCUPIED;
+    }
 }
