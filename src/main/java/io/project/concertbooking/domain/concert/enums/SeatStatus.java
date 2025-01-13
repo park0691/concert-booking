@@ -1,4 +1,4 @@
-package io.project.concertbooking.domain.seat.enums;
+package io.project.concertbooking.domain.concert.enums;
 
 import lombok.Getter;
 

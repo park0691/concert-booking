@@ -1,7 +1,8 @@
-package io.project.concertbooking.domain.seat;
+package io.project.concertbooking.domain.reservation;
 
-import io.project.concertbooking.domain.seat.enums.SeatReservationStatus;
-import io.project.concertbooking.domain.seat.enums.converter.SeatReservationStatusConverter;
+import io.project.concertbooking.domain.concert.Seat;
+import io.project.concertbooking.domain.reservation.enums.ReservationStatus;
+import io.project.concertbooking.domain.reservation.enums.converter.ReservationStatusConverter;
 import io.project.concertbooking.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -14,15 +15,15 @@ import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-@Table(name = "SEAT_RESERVATION")
+@Table(name = "RESERVATION")
 @NoArgsConstructor
 @Getter
-public class SeatReservation {
+public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "SEAT_RESERVATION_ID", updatable = false)
-    private Long seatReservationId;
+    @Column(name = "RESERVATION_ID", updatable = false)
+    private Long reservationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -39,15 +40,15 @@ public class SeatReservation {
     private Integer price;
 
     @Column(name = "STATUS")
-    @Convert(converter = SeatReservationStatusConverter.class)
-    private SeatReservationStatus status;
+    @Convert(converter = ReservationStatusConverter.class)
+    private ReservationStatus status;
 
     @CreatedDate
     @Column(name = "REG_DT")
     private LocalDateTime regDt;
 
     @Builder
-    private SeatReservation(User user, Seat seat, Integer seatNumber, Integer price, SeatReservationStatus status, LocalDateTime regDt) {
+    private Reservation(User user, Seat seat, Integer seatNumber, Integer price, ReservationStatus status, LocalDateTime regDt) {
         this.user = user;
         this.seat = seat;
         this.seatNumber = seatNumber;
@@ -56,8 +57,8 @@ public class SeatReservation {
         this.regDt = regDt;
     }
 
-    public static SeatReservation createSeatReservation(User user, Seat seat, Integer seatNumber, Integer price, SeatReservationStatus status) {
-        return SeatReservation.builder()
+    public static Reservation createReservation(User user, Seat seat, Integer seatNumber, Integer price, ReservationStatus status) {
+        return Reservation.builder()
                 .user(user)
                 .seat(seat)
                 .seatNumber(seatNumber)
@@ -67,7 +68,7 @@ public class SeatReservation {
     }
 
     public void confirm() {
-        this.status = SeatReservationStatus.CONFIRMED;
+        this.status = ReservationStatus.CONFIRMED;
         seat.occupy();
     }
 }

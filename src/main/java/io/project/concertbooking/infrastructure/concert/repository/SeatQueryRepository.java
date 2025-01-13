@@ -1,14 +1,14 @@
-package io.project.concertbooking.infrastructure.seat;
+package io.project.concertbooking.infrastructure.concert.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import io.project.concertbooking.domain.seat.Seat;
-import io.project.concertbooking.domain.seat.enums.SeatStatus;
+import io.project.concertbooking.domain.concert.Seat;
+import io.project.concertbooking.domain.concert.enums.SeatStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static io.project.concertbooking.domain.seat.QSeat.seat;
+import static io.project.concertbooking.domain.concert.QSeat.seat;
 
 @Repository
 @RequiredArgsConstructor

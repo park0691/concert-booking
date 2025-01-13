@@ -1,6 +1,6 @@
-package io.project.concertbooking.domain.seat.enums.converter;
+package io.project.concertbooking.domain.concert.enums.converter;
 
-import io.project.concertbooking.domain.seat.enums.SeatStatus;
+import io.project.concertbooking.domain.concert.enums.SeatStatus;
 import jakarta.persistence.AttributeConverter;
 
 public class SeatStatusConverter implements AttributeConverter<SeatStatus, String> {
