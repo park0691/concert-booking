@@ -4,7 +4,7 @@ import io.project.concertbooking.domain.payment.enums.converter.PaymentMethodCon
 import io.project.concertbooking.domain.payment.enums.converter.PaymentStatusConverter;
 import io.project.concertbooking.domain.payment.enums.PaymentMethod;
 import io.project.concertbooking.domain.payment.enums.PaymentStatus;
-import io.project.concertbooking.domain.seat.SeatReservation;
+import io.project.concertbooking.domain.reservation.Reservation;
 import io.project.concertbooking.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -32,8 +32,8 @@ public class Payment {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SEAT_RESERVATION_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private SeatReservation seatReservation;
+    @JoinColumn(name = "RESERVATION_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Reservation reservation;
 
     @Column(name = "PRICE")
     private Integer price;
@@ -51,19 +51,19 @@ public class Payment {
     private LocalDateTime regDt;
 
     @Builder
-    private Payment(User user, SeatReservation seatReservation, Integer price, PaymentMethod method, PaymentStatus status, LocalDateTime regDt) {
+    private Payment(User user, Reservation reservation, Integer price, PaymentMethod method, PaymentStatus status, LocalDateTime regDt) {
         this.user = user;
-        this.seatReservation = seatReservation;
+        this.reservation = reservation;
         this.price = price;
         this.method = method;
         this.status = status;
         this.regDt = regDt;
     }
 
-    public static Payment createPayment(User user, SeatReservation reservation, Integer price, PaymentMethod method, PaymentStatus status) {
+    public static Payment createPayment(User user, Reservation reservation, Integer price, PaymentMethod method, PaymentStatus status) {
         return Payment.builder()
                 .user(user)
-                .seatReservation(reservation)
+                .reservation(reservation)
                 .price(price)
                 .method(method)
                 .status(status)

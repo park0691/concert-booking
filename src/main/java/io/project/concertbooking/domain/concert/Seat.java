@@ -1,8 +1,7 @@
-package io.project.concertbooking.domain.seat;
+package io.project.concertbooking.domain.concert;
 
-import io.project.concertbooking.domain.concert.ConcertSchedule;
-import io.project.concertbooking.domain.seat.enums.SeatStatus;
-import io.project.concertbooking.domain.seat.enums.converter.SeatStatusConverter;
+import io.project.concertbooking.domain.concert.enums.SeatStatus;
+import io.project.concertbooking.domain.concert.enums.converter.SeatStatusConverter;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,11 +40,11 @@ public class Seat {
         this.status = status;
     }
 
-    void reserve() {
+    public void reserve() {
         this.status = SeatStatus.RESERVED;
     }
 
-    void occupy() {
+    public void occupy() {
         this.status = SeatStatus.OCCUPIED;
     }
 }
