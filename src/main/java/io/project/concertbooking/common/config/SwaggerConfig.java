@@ -1,4 +1,4 @@
-package io.project.concertbooking.config;
+package io.project.concertbooking.common.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

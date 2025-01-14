@@ -1,5 +1,6 @@
 package io.project.concertbooking.interfaces.api.v1.concert;
 
+import io.project.concertbooking.common.annotation.TokenRequired;
 import io.project.concertbooking.interfaces.api.support.ApiResponse;
 import io.project.concertbooking.interfaces.api.v1.concert.request.ReserveSeatRequest;
 import io.project.concertbooking.interfaces.api.v1.concert.response.GetScheduleResponse;
@@ -24,6 +25,7 @@ public class ConcertController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")
     })
+    @TokenRequired
     @GetMapping("/{concertId}/schedules")
     public ApiResponse<?> getSchedule(
             @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,
@@ -50,6 +52,7 @@ public class ConcertController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")
     })
+    @TokenRequired
     @GetMapping("/schedules/{concertScheduleId}/seats")
     public ApiResponse<?> getSeat(
             @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,
@@ -78,6 +81,7 @@ public class ConcertController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "예약 성공")
     })
+    @TokenRequired
     @PostMapping("/schedules/{concertScheduleId}/reservation/seats/{seatId}")
     public ApiResponse<?> reserveSeat(
             @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,
