@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -23,6 +24,13 @@ import static java.util.Objects.isNull;
 @Component
 public class LoggingFilter extends OncePerRequestFilter {
 
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private final String ALLOWED_PATTERN = "/api/v1/**";
+    private final List<String> EXCLUDE_PATTERNS = List.of(
+            "/api/v1/swagger-ui/**",
+            "/api/v1/docs"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -33,6 +41,17 @@ public class LoggingFilter extends OncePerRequestFilter {
         filterChain.doFilter(requestWrapper, responseWrapper);
         logResponse(responseWrapper);
         responseWrapper.copyBodyToResponse();
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String requestURI = request.getRequestURI();
+        if (!pathMatcher.match(ALLOWED_PATTERN, requestURI)
+                || EXCLUDE_PATTERNS.stream().anyMatch(pattern -> pathMatcher.match(pattern, requestURI))
+        ) {
+            return true;
+        }
+        return false;
     }
 
     private void logRequest(ContentCachingRequestWrapper request) {
