@@ -2,14 +2,15 @@ package io.project.concertbooking.domain.queue;
 
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
+import io.project.concertbooking.common.util.TokenGenerateUtil;
 import io.project.concertbooking.domain.queue.enums.QueueStatus;
 import io.project.concertbooking.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.Token;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Transactional(readOnly = true)
 @Service
@@ -30,7 +31,7 @@ public class QueueService {
 
     @Transactional
     public String createQueueToken(User user) {
-        String token = UUID.randomUUID().toString();
+        String token = TokenGenerateUtil.generateUUIDToken();
         Queue queue = queueRepository.save(
                 Queue.create(user, token)
         );
