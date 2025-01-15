@@ -4,6 +4,7 @@ spring:
     group:
       local: common
       prod: common
+      test: common
 ---
 spring:
   config:
@@ -68,3 +69,21 @@ springdoc:
     disable-swagger-default-url: true
     display-request-duration: true
     operations-sorter: alpha
+---
+spring.config.activate.on-profile: test
+
+spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mysql:8.3.0:///concert?TC_INITSCRIPT=file:src/main/resources/schema.sql
+    username: application
+    password: application
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace

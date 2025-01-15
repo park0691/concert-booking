@@ -1,6 +1,6 @@
 package io.project.concertbooking.domain.point;
 
-import io.project.concertbooking.domain.support.IntegrationTestSupport;
+import io.project.concertbooking.support.IntegrationTestSupport;
 import io.project.concertbooking.domain.user.User;
 import io.project.concertbooking.infrastructure.point.repository.PointHistoryJpaRepository;
 import io.project.concertbooking.infrastructure.point.repository.PointJpaRepository;
