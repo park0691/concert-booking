@@ -44,7 +44,7 @@ class PointServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.POINT_NOT_FOUND);
     }
 
-    @DisplayName("포인트가 조회되지 않는 경우 예외가 발생한다.")
+    @DisplayName("포인트를 조회한다.")
     @Test
     void findPoint() {
         // given
@@ -59,5 +59,24 @@ class PointServiceTest {
         // then
         assertThat(foundPoint).usingRecursiveComparison()
                 .isEqualTo(foundPoint);
+    }
+
+    @DisplayName("포인트 차감할 때 포인트가 부족한 경우 예외가 발생한다.")
+    @Test
+    void useWithInsufficientAmount() {
+        // given
+        Point point = fixtureMonkey.giveMeBuilder(Point.class)
+                .set("amount", 5000)
+                .sample();
+        given(pointRepository.findByUser(any(User.class)))
+                .willReturn(Optional.of(point));
+
+        User user = fixtureMonkey.giveMeOne(User.class);
+
+        // when, then
+        assertThatThrownBy(() -> pointService.use(user, 6000))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.POINT_INSUFFICIENT);
+
     }
 }

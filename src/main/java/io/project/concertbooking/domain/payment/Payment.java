@@ -4,14 +4,18 @@ import io.project.concertbooking.domain.payment.enums.converter.PaymentMethodCon
 import io.project.concertbooking.domain.payment.enums.converter.PaymentStatusConverter;
 import io.project.concertbooking.domain.payment.enums.PaymentMethod;
 import io.project.concertbooking.domain.payment.enums.PaymentStatus;
-import io.project.concertbooking.domain.seat.SeatReservation;
+import io.project.concertbooking.domain.reservation.Reservation;
 import io.project.concertbooking.domain.user.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "PAYMENT")
 @NoArgsConstructor
@@ -28,8 +32,8 @@ public class Payment {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SEAT_RESERVATION_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private SeatReservation seatReservation;
+    @JoinColumn(name = "RESERVATION_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Reservation reservation;
 
     @Column(name = "PRICE")
     private Integer price;
@@ -42,6 +46,27 @@ public class Payment {
     @Convert(converter = PaymentStatusConverter.class)
     private PaymentStatus status;
 
+    @CreatedDate
     @Column(name = "REG_DT")
     private LocalDateTime regDt;
+
+    @Builder
+    private Payment(User user, Reservation reservation, Integer price, PaymentMethod method, PaymentStatus status, LocalDateTime regDt) {
+        this.user = user;
+        this.reservation = reservation;
+        this.price = price;
+        this.method = method;
+        this.status = status;
+        this.regDt = regDt;
+    }
+
+    public static Payment createPayment(User user, Reservation reservation, Integer price, PaymentMethod method, PaymentStatus status) {
+        return Payment.builder()
+                .user(user)
+                .reservation(reservation)
+                .price(price)
+                .method(method)
+                .status(status)
+                .build();
+    }
 }
