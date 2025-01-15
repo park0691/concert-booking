@@ -7,6 +7,7 @@ import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
 import io.project.concertbooking.domain.queue.enums.QueueStatus;
 import io.project.concertbooking.domain.user.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +41,12 @@ class QueueServiceTest {
     FixtureMonkey fixtureMonkey = FixtureMonkey.builder()
             .objectIntrospector(BuilderArbitraryIntrospector.INSTANCE)
             .build();
+
+    @BeforeEach
+    void beforeEach() {
+        ReflectionTestUtils.setField(queueService, "QUEUE_MAX_SIZE", 100);
+        ReflectionTestUtils.setField(queueService, "EXPIRE_TIME_MIN", 10);
+    }
 
     @Nested
     @DisplayName("findByUserAndStatus() 테스트")
@@ -96,6 +105,7 @@ class QueueServiceTest {
     @Test
     void createQueueToken() {
         // given
+        LocalDateTime now = LocalDateTime.now();
         User user = fixtureMonkey.giveMeOne(User.class);
         Queue queue = fixtureMonkey.giveMeBuilder(Queue.class)
                 .set("user", user)
@@ -104,7 +114,7 @@ class QueueServiceTest {
                 .willReturn(queue);
 
         // when
-        String token = queueService.createQueueToken(user);
+        String token = queueService.createQueueToken(user, now);
 
         // then
         assertThat(token).isNotNull();
