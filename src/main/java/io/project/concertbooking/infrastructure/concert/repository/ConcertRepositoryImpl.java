@@ -39,11 +39,6 @@ public class ConcertRepositoryImpl implements IConcertRepository {
     }
 
     @Override
-    public Optional<Seat> findSeatById(Long id) {
-        return seatJpaRepository.findById(id);
-    }
-
-    @Override
     public List<Seat> findAllByConcertSchedule(ConcertSchedule concertSchedule) {
         return seatJpaRepository.findAllByConcertSchedule(concertSchedule);
     }
@@ -51,5 +46,15 @@ public class ConcertRepositoryImpl implements IConcertRepository {
     @Override
     public Long updateSeatStatusIn(SeatStatus status, List<Seat> seats) {
         return seatQueryRepository.updateSeatStatusByIdsIn(status, seats);
+    }
+
+    @Override
+    public List<Seat> findSeats(List<Long> seatIds) {
+        return seatJpaRepository.findAllById(seatIds);
+    }
+
+    @Override
+    public Seat saveSeat(Seat seat) {
+        return seatJpaRepository.save(seat);
     }
 }

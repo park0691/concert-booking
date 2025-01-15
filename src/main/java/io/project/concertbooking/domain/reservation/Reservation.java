@@ -68,7 +68,7 @@ public class Reservation {
     }
 
     public void confirm() {
-        this.status = ReservationStatus.CONFIRMED;
+        this.status = ReservationStatus.PAID;
         seat.occupy();
     }
 }

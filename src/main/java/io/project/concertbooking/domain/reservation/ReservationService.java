@@ -20,41 +20,47 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationService {
 
-    private final IReservationRepository seatRepository;
+    private final IReservationRepository reservationRepository;
     private final IConcertRepository concertRepository;
+    private final ReservationValidator reservationValidator;
 
     @Transactional
-    public Reservation createReservation(User user, ConcertSchedule concertSchedule, Seat seat) {
-        SeatStatus seatStatus = seat.getStatus();
-        if (seatStatus.equals(SeatStatus.RESERVED) || seatStatus.equals(SeatStatus.OCCUPIED)) {
-            throw new CustomException(ErrorCode.SEAT_NOT_AVAILABLE);
-        }
+    public List<Reservation> createReservation(User user, ConcertSchedule concertSchedule, List<Seat> seats) {
+        // 예약 완료 상태인지 검증
+        reservationValidator.checkIfSeatAvailable(seats);
 
-        seat.reserve();
+        // 좌석 예약
+        seats.forEach(Seat::reserve);
 
-        return seatRepository.save(
-                Reservation.createReservation(
-                        user, seat, seat.getNumber(), seat.getPrice(), ReservationStatus.RESERVED
-                )
-        );
+        // 예약 생성
+        return seats.stream()
+                .map(seat -> {
+                    concertRepository.saveSeat(seat);
+                    return reservationRepository.save(
+                            Reservation.createReservation(
+                                    user, seat, seat.getNumber(), seat.getPrice(), ReservationStatus.RESERVED
+                            )
+                    );
+                })
+                .toList();
     }
 
     @Transactional
     public void expireReservation(LocalDateTime now) {
         LocalDateTime expiredDt = now.minusMinutes(5L);
-        List<Reservation> expireTargets = seatRepository.findByStatusAndRegDtLt(ReservationStatus.RESERVED, expiredDt);
-        seatRepository.updateStatusIn(ReservationStatus.EXPIRED, expireTargets);
+        List<Reservation> expireTargets = reservationRepository.findByStatusAndRegDtLt(ReservationStatus.RESERVED, expiredDt);
+        reservationRepository.updateStatusIn(ReservationStatus.EXPIRED, expireTargets);
         List<Seat> seats = expireTargets.stream().map(Reservation::getSeat).toList();
         concertRepository.updateSeatStatusIn(SeatStatus.EMPTY, seats);
     }
 
     public Reservation findReservation(Long reservationId) {
-        return seatRepository.findById(reservationId)
+        return reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
     }
 
     public void finalizeReservation(Reservation reservation) {
         reservation.confirm();
-        seatRepository.save(reservation);
+        reservationRepository.save(reservation);
     }
 }
