@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 @Getter
 public enum PaymentMethod {
-    CASH("CA", "캐시"),
+    POINT("PT", "포인트"),
     NAVER_PAY("NA", "네이버페이");
 
     private final String dbCode;

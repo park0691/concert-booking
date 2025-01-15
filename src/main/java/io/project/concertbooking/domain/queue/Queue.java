@@ -66,6 +66,14 @@ public class Queue {
                 .build();
     }
 
+    public boolean isExpired() {
+        return this.status == QueueStatus.EXPIRED;
+    }
+
+    public boolean isWaiting() {
+        return this.status == QueueStatus.WAITING;
+    }
+
     public void expireQueueToken() {
         this.status = QueueStatus.EXPIRED;
     }

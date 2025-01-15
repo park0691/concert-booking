@@ -1,6 +1,7 @@
 package io.project.concertbooking.domain.concert;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,4 +24,10 @@ public class ConcertSchedule {
 
     @Column(name = "SCHEDULE_DT")
     private LocalDateTime scheduleDt;
+
+    @Builder
+    private ConcertSchedule(Concert concert, LocalDateTime scheduleDt) {
+        this.concert = concert;
+        this.scheduleDt = scheduleDt;
+    }
 }

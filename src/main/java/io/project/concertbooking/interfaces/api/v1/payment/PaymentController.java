@@ -1,5 +1,6 @@
 package io.project.concertbooking.interfaces.api.v1.payment;
 
+import io.project.concertbooking.common.annotation.TokenRequired;
 import io.project.concertbooking.interfaces.api.support.ApiResponse;
 import io.project.concertbooking.interfaces.api.v1.payment.request.PaySeatRequest;
 import io.project.concertbooking.interfaces.api.v1.payment.response.PaySeatResponse;
@@ -21,6 +22,7 @@ public class PaymentController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "결제 성공")
     })
+    @TokenRequired
     @PostMapping("/seat-reservations/{seatReservationId}")
     public ApiResponse<?> paySeat(
             @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,

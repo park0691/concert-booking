@@ -1,25 +1,68 @@
 spring:
+  profiles:
+    active: local
+    group:
+      local: common
+      prod: common
+      test: common
+---
+spring:
+  config:
+    activate:
+      on-profile: common
   application:
     name: concert-booking
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: 
-    username:
-    password:
   jpa:
     hibernate:
-      ddl-auto: none
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
-        highlight_sql: true
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+queue:
+  request-header-key: Queue-Token
+  max-size: 100
+  expire-time-min: 10
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url:
+    username:
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
+springdoc:
+  swagger-ui:
+    enabled: false
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url:
+    username:
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  devtools:
+    restart:
+      enabled: true
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
 springdoc:
   packages-to-scan: io.project.concertbooking.interfaces.api.v1
   default-consumes-media-type: application/json;charset=UTF-8
@@ -29,3 +72,16 @@ springdoc:
     disable-swagger-default-url: true
     display-request-duration: true
     operations-sorter: alpha
+---
+spring.config.activate.on-profile: test
+
+spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mysql:8.3.0:///concert?TC_INITSCRIPT=file:src/main/resources/schema.sql
+    username: application
+    password: application
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
