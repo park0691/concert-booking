@@ -2,6 +2,7 @@ package io.project.concertbooking.domain.queue;
 
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
+import io.project.concertbooking.common.util.TokenGenerateUtil;
 import io.project.concertbooking.domain.queue.enums.QueueStatus;
 import io.project.concertbooking.domain.user.User;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Transactional(readOnly = true)
 @Service
@@ -22,7 +22,10 @@ public class QueueService {
     private final IQueueRepository queueRepository;
 
     @Value("${queue.max-size}")
-    private int queueMaxSize = 100;
+    private int QUEUE_MAX_SIZE;
+
+    @Value("${queue.expire-time-min}")
+    private int EXPIRE_TIME_MIN;
 
     public Optional<Queue> findByUserAndStatus(User user, QueueStatus queueStatus) {
         return queueRepository.findByUserAndStatus(user, queueStatus);
@@ -35,10 +38,10 @@ public class QueueService {
     }
 
     @Transactional
-    public String createQueueToken(User user) {
-        String token = UUID.randomUUID().toString();
+    public String createQueueToken(User user, LocalDateTime now) {
+        String token = TokenGenerateUtil.generateUUIDToken();
         Queue queue = queueRepository.save(
-                Queue.create(user, token)
+                Queue.create(user, token, now.plusMinutes(EXPIRE_TIME_MIN))
         );
 
         return queue.getToken();
@@ -70,7 +73,7 @@ public class QueueService {
     @Transactional
     public void enqueueByActivatingWaitingToken() {
         int activeQueueCount = queueRepository.findCountByStatus(QueueStatus.ACTIVATED).intValue();
-        int activeCandidateQueueCount = queueMaxSize - activeQueueCount;
+        int activeCandidateQueueCount = QUEUE_MAX_SIZE - activeQueueCount;
 
         if (activeCandidateQueueCount > 0) {
             List<Long> activeCandidateQueueIds = queueRepository.findAllWaitingLimit(activeCandidateQueueCount)
