@@ -1,19 +1,58 @@
 spring:
+  profiles:
+    active: local
+    group:
+      local: common
+      prod: common
+---
+spring:
+  config:
+    activate:
+      on-profile: common
   application:
     name: concert-booking
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: 
-    username:
-    password:
   jpa:
     hibernate:
-      ddl-auto: none
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+queue:
+  request-header-key: Queue-Token
+  max-size: 100
+  expire-time-min: 10
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url:
+    username:
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+springdoc:
+  swagger-ui:
+    enabled: false
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url:
+    username:
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
         format_sql: true
         highlight_sql: true
 logging:
