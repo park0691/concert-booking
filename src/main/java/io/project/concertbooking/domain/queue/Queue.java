@@ -58,11 +58,12 @@ public class Queue {
         this.expDt = expDt;
     }
 
-    public static Queue create(User user, String token) {
+    public static Queue create(User user, String token, LocalDateTime expDt) {
         return Queue.builder()
                 .user(user)
                 .token(token)
                 .status(QueueStatus.WAITING)
+                .expDt(expDt)
                 .build();
     }
 

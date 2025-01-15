@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class QueueFacade {
         queueService.findByUserAndStatus(user, QueueStatus.WAITING)
                 .ifPresent(queueService::expire);
 
-        return queueService.createQueueToken(user);
+        return queueService.createQueueToken(user, LocalDateTime.now());
     }
 
     public QueueStatusResult findQueueStatus(String token) {
