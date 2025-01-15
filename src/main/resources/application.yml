@@ -36,6 +36,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
 springdoc:
   swagger-ui:
     enabled: false
@@ -52,14 +56,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    properties:
-      hibernate:
-        format_sql: true
-        highlight_sql: true
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+  devtools:
+    restart:
+      enabled: true
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
 springdoc:
   packages-to-scan: io.project.concertbooking.interfaces.api.v1
   default-consumes-media-type: application/json;charset=UTF-8
@@ -78,12 +81,7 @@ spring:
     url: jdbc:tc:mysql:8.3.0:///concert?TC_INITSCRIPT=file:src/main/resources/schema.sql
     username: application
     password: application
-  jpa:
-    properties:
-      hibernate:
-        format_sql: true
-        highlight_sql: true
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
