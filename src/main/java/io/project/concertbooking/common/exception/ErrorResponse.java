@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 public class ErrorResponse {
 
     private final LocalDateTime timestamp = LocalDateTime.now();
-    private final String requestUrl;
+    private final String path;
     private final int status;
     private final String error;
     private final String code;
     private final String message;
 
-    public ErrorResponse(String requestUrl, int status, String error, String code, String message) {
-        this.requestUrl = requestUrl;
+    public ErrorResponse(String path, int status, String error, String code, String message) {
+        this.path = path;
         this.status = status;
         this.error = error;
         this.code = code;
@@ -26,7 +26,7 @@ public class ErrorResponse {
 
     public static ErrorResponse of(HttpServletRequest request, ErrorCode errorCode) {
         return new ErrorResponse(request.getRequestURI(), errorCode.getHttpStatus().value(), errorCode.getHttpStatus().name(),
-                errorCode.name(), errorCode.getMessage());
+                errorCode.getCode(), errorCode.getMessage());
     }
 
     public static ResponseEntity<ErrorResponse> toResponseEntity(HttpServletRequest request, ErrorCode errorCode) {
