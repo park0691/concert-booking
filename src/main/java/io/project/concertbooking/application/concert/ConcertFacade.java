@@ -1,6 +1,7 @@
 package io.project.concertbooking.application.concert;
 
 import io.project.concertbooking.application.concert.dto.ScheduleResult;
+import io.project.concertbooking.application.concert.dto.SeatResult;
 import io.project.concertbooking.application.concert.dto.mapper.ConcertResultMapper;
 import io.project.concertbooking.domain.concert.Concert;
 import io.project.concertbooking.domain.concert.ConcertSchedule;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Transactional(readOnly = true)
 @Service
@@ -28,5 +31,12 @@ public class ConcertFacade {
                         .toList(),
                 resultMapper.toSchedulePageOfResult(schedules)
         );
+    }
+
+    public List<SeatResult> getSeats(Long concertScheduleId) {
+        ConcertSchedule concertSchedule = concertService.findScheduleById(concertScheduleId);
+        return concertService.findAvailableSeats(concertSchedule).stream()
+                .map(resultMapper::toSeatResult)
+                .toList();
     }
 }

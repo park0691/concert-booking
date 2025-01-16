@@ -6,7 +6,7 @@ import io.project.concertbooking.application.reservation.ReservationFacade;
 import io.project.concertbooking.common.annotation.TokenRequired;
 import io.project.concertbooking.interfaces.api.support.ApiResponse;
 import io.project.concertbooking.interfaces.api.v1.concert.request.ReservationRequest;
-import io.project.concertbooking.interfaces.api.v1.concert.response.GetSeatResponse;
+import io.project.concertbooking.interfaces.api.v1.concert.response.SeatResponse;
 import io.project.concertbooking.interfaces.api.v1.concert.response.ReservationResponse;
 import io.project.concertbooking.interfaces.api.v1.concert.response.ScheduleResponse;
 import io.project.concertbooking.interfaces.api.v1.concert.response.mapper.ConcertResponseMapper;
@@ -58,27 +58,15 @@ public class ConcertController {
     })
     @TokenRequired
     @GetMapping("/schedules/{concertScheduleId}/seats")
-    public ApiResponse<?> getSeat(
+    public ApiResponse<?> seats(
             @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,
             @PathVariable("concertScheduleId") @Parameter(description = "콘서트 스케줄 ID", example = "1") Long concertScheduleId
     ) {
-        return ApiResponse.ok(GetSeatResponse.builder()
-                .concertScheduleId(11L)
-                .seats(List.of(
-                                GetSeatResponse.Seat.builder()
-                                        .seatId(1L)
-                                        .seatNumber(10)
-                                        .price(10000)
-                                        .build(),
-                                GetSeatResponse.Seat.builder()
-                                        .seatId(2L)
-                                        .seatNumber(12)
-                                        .price(20000)
-                                        .build()
-                        )
-                )
-                .build()
-        );
+        return ApiResponse.ok(SeatResponse.of(
+                concertFacade.getSeats(concertScheduleId).stream()
+                        .map(responseMapper::toSeatInfoOfResponse)
+                        .toList()
+        ));
     }
 
     @Operation(summary = "콘서트 좌석 예약(임시 배정)", description = "사용자, 콘서트 스케줄 ID로 콘서트 좌석을 예약(임시 배정)합니다. 예약 후 5분 이내 결제하지 않은 경우 좌석의 임시 배정은 취소됩니다.")
