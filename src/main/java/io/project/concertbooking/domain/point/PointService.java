@@ -40,6 +40,23 @@ public class PointService {
     }
 
     @Transactional
+    public Point chargeWithLock(User user, Integer chargePoint) {
+        Optional<Point> pointOpt = pointRepository.findByUserWithLock(user);
+
+        Point point;
+
+        if (pointOpt.isPresent()) {
+            point = pointOpt.get();
+            point.charge(chargePoint);
+        } else {
+            point = Point.createPoint(user, chargePoint);
+        }
+        saveHistory(user, chargePoint, TransactionType.CHARGE);
+
+        return pointRepository.savePoint(point);
+    }
+
+    @Transactional
     public Point use(User user, Integer usePoint) {
         Point point = pointRepository.findByUser(user)
                 .orElseGet(() -> pointRepository.savePoint(Point.createPoint(user, 0)));

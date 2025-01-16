@@ -26,7 +26,7 @@ public class ReservationFacade {
     public List<ReservationResult> reserve(Long concertScheduleId, Long userId, List<Long> seatIds) {
         User user = userService.findById(userId);
         ConcertSchedule concertSchedule = concertService.findScheduleById(concertScheduleId);
-        List<Seat> seats = concertService.findSeats(seatIds);
+        List<Seat> seats = concertService.findSeatsWithLock(seatIds);
         List<Reservation> reservations = reservationService.createReservation(user, concertSchedule, seats);
         return reservations.stream()
                 .map(r -> ReservationResult.of(r, concertSchedule))

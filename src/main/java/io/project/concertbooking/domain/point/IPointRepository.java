@@ -7,6 +7,8 @@ import java.util.Optional;
 public interface IPointRepository {
     Optional<Point> findByUser(User user);
 
+    Optional<Point> findByUserWithLock(User user);
+
     Point savePoint(Point point);
 
     PointHistory saveHistory(PointHistory pointHistory);
