@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -67,7 +68,165 @@ class ConcertControllerIntegrationTest extends IntegrationTestSupport {
     SeatJpaRepository seatJpaRepository;
 
     @Nested
-    @DisplayName("[reservations() - 콘서트 좌석 예약 API 통합 테스트]")
+    @DisplayName("[schedules() - 콘서트 스케줄(날짜) 조회 API 테스트]")
+    class SchedulesTest {
+
+        @DisplayName("발급되지 않은 토큰으로 요청시 에러 응답을 반환한다.")
+        @Test
+        void requestWithInvalidToken() throws Exception {
+            // given
+            int pageNo = 14;
+            int pageSize = 5;
+
+            // when, then
+            mockMvc.perform(
+                            get("/api/v1/concerts/1/schedules")
+                                    .header(queueConstants.getRequestHeaderKey(), "bla_bla_bla")
+                                    .param("page", String.valueOf(pageNo))
+                                    .param("size", String.valueOf(pageSize))
+                    )
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("QE001"));
+        }
+
+        @DisplayName("활성화되지 않은 토큰으로 요청시 에러 응답을 반환한다.")
+        @ParameterizedTest
+        @EnumSource(value = QueueStatus.class, names = {"WAITING", "EXPIRED"})
+        void requestWithNonActivatedToken(QueueStatus queueStatus) throws Exception {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+            String token = TokenGenerateUtil.generateUUIDToken();
+            queueJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Queue.class)
+                            .setNull("user")
+                            .set("status", Values.just(queueStatus))
+                            .set("token", Values.just(token))
+                            .set("expDt", now.plusMinutes(10L))
+                            .sample()
+            );
+            int pageNo = 14;
+            int pageSize = 5;
+
+            // when, then
+            mockMvc.perform(
+                            get("/api/v1/concerts/1/schedules")
+                                    .header(queueConstants.getRequestHeaderKey(), token)
+                                    .param("page", String.valueOf(pageNo))
+                                    .param("size", String.valueOf(pageSize))
+                    )
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.code").value("QE002"));
+        }
+
+        @DisplayName("콘서트 스케줄의 마지막 페이지를 조회한다.")
+        @Test
+        void requestWithLastPage() throws Exception {
+            // given
+            User user = userJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(User.class)
+                            .sample()
+            );
+            String token = TokenGenerateUtil.generateUUIDToken();
+            LocalDateTime now = LocalDateTime.now();
+            Queue queue = queueJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Queue.class)
+                            .set("user", Values.just(user))
+                            .set("status", Values.just(QueueStatus.ACTIVATED))
+                            .set("token", Values.just(token))
+                            .set("expDt", now.plusMinutes(10L))
+                            .sample()
+            );
+            Concert concert = concertJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Concert.class)
+                            .set("name", Arbitraries.strings().withCharRange('A', 'Z').ofLength(10).map(s -> s + " Concert"))
+                            .sample()
+            );
+            List<ConcertSchedule> concertSchedules = concertScheduleJpaRepository.saveAll(
+                    fixtureMonkey.giveMeBuilder(ConcertSchedule.class)
+                            .set("concert", Values.just(concert))
+                            .set("scheduleDt", DateTimes.dateTimes().atTheEarliest(now.plusDays(7L))
+                                    .atTheLatest(now.plusDays(60L)))
+                            .sampleList(68)
+            );
+            int pageNo = 14;
+            int pageSize = 5;
+
+            // when, then
+            mockMvc.perform(
+                            get("/api/v1/concerts/%d/schedules".formatted(concert.getConcertId()))
+                                    .header(queueConstants.getRequestHeaderKey(), token)
+                                    .param("page", String.valueOf(pageNo))
+                                    .param("size", String.valueOf(pageSize))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value(200))
+                    .andExpect(jsonPath("$.data.concertId").value(concert.getConcertId()))
+                    .andExpect(jsonPath("$.data.concertName").value(concert.getName()))
+                    .andExpect(jsonPath("$.data.schedules").isNotEmpty())
+                    .andExpect(jsonPath("$.data.schedules").isArray())
+                    .andExpect(jsonPath("$.data.page.page").value(pageNo))
+                    .andExpect(jsonPath("$.data.page.pageSize").value(pageSize))
+                    .andExpect(jsonPath("$.data.page.dataCount").value(3))
+                    .andExpect(jsonPath("$.data.page.dataTotalCount").value(concertSchedules.size()))
+                    .andExpect(jsonPath("$.data.page.pageTotalCount").value(14));
+        }
+
+        @DisplayName("콘서트 스케줄의 첫 번째 페이지를 조회한다.")
+        @Test
+        void requestWithFirstPage() throws Exception {
+            // given
+            User user = userJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(User.class)
+                            .sample()
+            );
+            String token = TokenGenerateUtil.generateUUIDToken();
+            LocalDateTime now = LocalDateTime.now();
+            Queue queue = queueJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Queue.class)
+                            .set("user", Values.just(user))
+                            .set("status", Values.just(QueueStatus.ACTIVATED))
+                            .set("token", Values.just(token))
+                            .set("expDt", now.plusMinutes(10L))
+                            .sample()
+            );
+            Concert concert = concertJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Concert.class)
+                            .set("name", Arbitraries.strings().withCharRange('A', 'Z').ofLength(10).map(s -> s + " Concert"))
+                            .sample()
+            );
+            List<ConcertSchedule> concertSchedules = concertScheduleJpaRepository.saveAll(
+                    fixtureMonkey.giveMeBuilder(ConcertSchedule.class)
+                            .set("concert", Values.just(concert))
+                            .set("scheduleDt", DateTimes.dateTimes().atTheEarliest(now.plusDays(7L))
+                                    .atTheLatest(now.plusDays(60L)))
+                            .sampleList(68)
+            );
+            int pageNo = 1;
+            int pageSize = 5;
+
+            // when, then
+            mockMvc.perform(
+                            get("/api/v1/concerts/%d/schedules".formatted(concert.getConcertId()))
+                                    .header(queueConstants.getRequestHeaderKey(), token)
+                                    .param("page", String.valueOf(pageNo))
+                                    .param("size", String.valueOf(pageSize))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value(200))
+                    .andExpect(jsonPath("$.data.concertId").value(concert.getConcertId()))
+                    .andExpect(jsonPath("$.data.concertName").value(concert.getName()))
+                    .andExpect(jsonPath("$.data.schedules").isNotEmpty())
+                    .andExpect(jsonPath("$.data.schedules").isArray())
+                    .andExpect(jsonPath("$.data.page.page").value(pageNo))
+                    .andExpect(jsonPath("$.data.page.pageSize").value(pageSize))
+                    .andExpect(jsonPath("$.data.page.dataCount").value(5))
+                    .andExpect(jsonPath("$.data.page.dataTotalCount").value(concertSchedules.size()))
+                    .andExpect(jsonPath("$.data.page.pageTotalCount").value(14));
+        }
+    }
+
+    @Nested
+    @DisplayName("[reservations() - 콘서트 좌석 예약 API 테스트]")
     class ReservationsTest {
 
         @DisplayName("발급되지 않은 토큰으로 요청시 에러 응답을 반환한다.")
