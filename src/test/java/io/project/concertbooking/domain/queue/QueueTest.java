@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayName("[Queue - 단위 테스트]")
 class QueueTest {
 
     @DisplayName("큐(대기열) 토큰을 만료시킨다.")

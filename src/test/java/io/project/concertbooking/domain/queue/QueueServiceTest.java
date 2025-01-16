@@ -1,22 +1,19 @@
 package io.project.concertbooking.domain.queue;
 
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.BuilderArbitraryIntrospector;
 import com.navercorp.fixturemonkey.customizer.Values;
 import io.project.concertbooking.common.constants.QueueConstants;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
 import io.project.concertbooking.domain.queue.enums.QueueStatus;
 import io.project.concertbooking.domain.user.User;
+import io.project.concertbooking.support.UnitTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -28,8 +25,8 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class QueueServiceTest {
+@DisplayName("[QueueService - 단위 테스트]")
+class QueueServiceTest extends UnitTestSupport {
 
     @Mock
     IQueueRepository queueRepository;
@@ -40,13 +37,9 @@ class QueueServiceTest {
     @InjectMocks
     QueueService queueService;
 
-    FixtureMonkey fixtureMonkey = FixtureMonkey.builder()
-            .objectIntrospector(BuilderArbitraryIntrospector.INSTANCE)
-            .build();
-
     @Nested
-    @DisplayName("findByUserAndStatus() 테스트")
-    class FindByUserAndStatusest {
+    @DisplayName("[findBy() - 대기열 조회 테스트]")
+    class FindByTest {
 
         @DisplayName("존재하지 않는 사용자, 상태로 큐(대기열)를 조회하면 빈 Optional을 반환한다.")
         @Test
@@ -55,7 +48,7 @@ class QueueServiceTest {
             User user = fixtureMonkey.giveMeOne(User.class);
 
             // when
-            Optional<Queue> queueOpt = queueService.findByUserAndStatus(user, QueueStatus.WAITING);
+            Optional<Queue> queueOpt = queueService.findBy(user, QueueStatus.WAITING);
 
             // then
             assertThat(queueOpt.isPresent()).isFalse();
@@ -69,56 +62,65 @@ class QueueServiceTest {
             Queue queue = fixtureMonkey.giveMeBuilder(Queue.class)
                     .set("user", user)
                     .sample();
-            given(queueService.findByUserAndStatus(any(User.class), any(QueueStatus.class)))
+            given(queueService.findBy(any(User.class), any(QueueStatus.class)))
                     .willReturn(Optional.of(queue));
 
             // when
-            Optional<Queue> queueOpt = queueService.findByUserAndStatus(user, QueueStatus.WAITING);
+            Optional<Queue> queueOpt = queueService.findBy(user, QueueStatus.WAITING);
 
             // then
             assertThat(queueOpt.isPresent()).isTrue();
             assertThat(queueOpt.get()).usingRecursiveComparison().isEqualTo(queue);
         }
-
-    }
-
-    @DisplayName("큐(대기열) 토큰을 만료시킨다.")
-    @Test
-    void expire() {
-        // given
-        Queue queue = fixtureMonkey.giveMeBuilder(Queue.class)
-                .set("status", QueueStatus.WAITING)
-                .sample();
-
-        // when
-        queueService.expire(queue);
-
-        // then
-        assertThat(queue.getStatus()).isEqualTo(QueueStatus.EXPIRED);
-    }
-
-    @DisplayName("큐(대기열) 토큰을 생성한다.")
-    @Test
-    void createQueueToken() {
-        // given
-        LocalDateTime now = LocalDateTime.now();
-        User user = fixtureMonkey.giveMeOne(User.class);
-        Queue queue = fixtureMonkey.giveMeBuilder(Queue.class)
-                .set("user", user)
-                .sample();
-        given(queueRepository.save(any(Queue.class)))
-                .willReturn(queue);
-
-        // when
-        String token = queueService.createQueueToken(user, now);
-
-        // then
-        assertThat(token).isNotNull();
-        assertThat(token).isNotBlank();
     }
 
     @Nested
-    @DisplayName("findByToken() 테스트")
+    @DisplayName("[expire() - 큐(대기열) 만료 테스트]")
+    class ExpireTest {
+
+        @DisplayName("큐(대기열) 토큰을 만료시킨다.")
+        @Test
+        void expire() {
+            // given
+            Queue queue = fixtureMonkey.giveMeBuilder(Queue.class)
+                    .set("status", QueueStatus.WAITING)
+                    .sample();
+
+            // when
+            queueService.expire(queue);
+
+            // then
+            assertThat(queue.getStatus()).isEqualTo(QueueStatus.EXPIRED);
+        }
+    }
+
+    @Nested
+    @DisplayName("[createQueueToken() - 큐(대기열) 생성 테스트]")
+    class CreateQueueToken {
+
+        @DisplayName("큐(대기열) 토큰을 생성한다.")
+        @Test
+        void createQueueToken() {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+            User user = fixtureMonkey.giveMeOne(User.class);
+            Queue queue = fixtureMonkey.giveMeBuilder(Queue.class)
+                    .set("user", user)
+                    .sample();
+            given(queueRepository.save(any(Queue.class)))
+                    .willReturn(queue);
+
+            // when
+            Queue token = queueService.createQueueToken(user, now);
+
+            // then
+            assertThat(token).isNotNull();
+            assertThat(token).usingRecursiveComparison().isEqualTo(queue);
+        }
+    }
+
+    @Nested
+    @DisplayName("[findByToken() - 토큰으로 큐(대기열) 조회 테스트]")
     class FindByTokenTest {
 
         @DisplayName("존재하지 않는 토큰으로 큐(대기열)를 조회하면 예외가 발생한다.")
@@ -153,23 +155,28 @@ class QueueServiceTest {
         }
     }
 
-    @DisplayName("입력된 큐(대기열) ID를 통해 대기 순번을 반환한다.")
-    @Test
-    void findWaitingCount() {
-        // given
-        given(queueRepository.findCountByIdAndStatus(any(Long.class), any(QueueStatus.class)))
-                .willReturn(12);
+    @Nested
+    @DisplayName("[findWaitingCount() - 큐(대기열) 대기 순번 카운트 테스트]")
+    class FindWaitingCount {
 
-        // when
-        Integer waitingCount = queueService.findWaitingCount(1L);
+        @DisplayName("입력된 큐(대기열) ID를 통해 대기 순번을 반환한다.")
+        @Test
+        void findWaitingCount() {
+            // given
+            given(queueRepository.findCountByIdAndStatus(any(Long.class), any(QueueStatus.class)))
+                    .willReturn(12);
 
-        // then
-        assertThat(waitingCount).isNotNull();
-        assertThat(waitingCount).isEqualTo(12);
+            // when
+            Integer waitingCount = queueService.findWaitingCount(1L);
+
+            // then
+            assertThat(waitingCount).isNotNull();
+            assertThat(waitingCount).isEqualTo(12);
+        }
     }
 
     @Nested
-    @DisplayName("validateToken() 테스트")
+    @DisplayName("[validateToken() - 토큰 검증 테스트]")
     class ValidateTokenTest {
 
         @DisplayName("존재하지 않는 토큰으로 큐(대기열)를 검증하면 예외가 발생한다.")
@@ -223,20 +230,25 @@ class QueueServiceTest {
         }
     }
 
-    @DisplayName("활성화 가능한 최대 큐 크기만큼 대기열이 활성화되어 있으면 큐 활성화 로직은 작동하지 않는다.")
-    @Test
-    void enqueueByActivatingWaitingTokenWhenMaxQueueActivated() {
-        // given
-        given(queueConstants.getMaxSize())
-                .willReturn(100);
-        given(queueRepository.findCountByStatus(any(QueueStatus.class)))
-                .willReturn(100L);
+    @Nested
+    @DisplayName("[enqueueByActivatingWaitingToken() - 큐 활성화 테스트]")
+    class EnqueueByActivatingWaitingToken {
 
-        // when
-        queueService.enqueueByActivatingWaitingToken();
+        @DisplayName("활성화 가능한 최대 큐 크기만큼 대기열이 활성화되어 있으면 큐 활성화 로직은 작동하지 않는다.")
+        @Test
+        void enqueueByActivatingWaitingTokenWhenMaxQueueActivated() {
+            // given
+            given(queueConstants.getMaxSize())
+                    .willReturn(100);
+            given(queueRepository.findCountByStatus(any(QueueStatus.class)))
+                    .willReturn(100L);
 
-        // then
-        verify(queueRepository, never()).findAllWaitingLimit(any(Integer.class));
-        verify(queueRepository, never()).updateStatusByIds(any(QueueStatus.class), anyList());
+            // when
+            queueService.enqueueByActivatingWaitingToken();
+
+            // then
+            verify(queueRepository, never()).findAllWaitingLimit(any(Integer.class));
+            verify(queueRepository, never()).updateStatusByIds(any(QueueStatus.class), anyList());
+        }
     }
 }
