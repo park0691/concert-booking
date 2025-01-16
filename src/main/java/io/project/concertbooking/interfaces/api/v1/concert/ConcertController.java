@@ -1,15 +1,18 @@
 package io.project.concertbooking.interfaces.api.v1.concert;
 
+import io.project.concertbooking.application.reservation.ReservationFacade;
 import io.project.concertbooking.common.annotation.TokenRequired;
 import io.project.concertbooking.interfaces.api.support.ApiResponse;
-import io.project.concertbooking.interfaces.api.v1.concert.request.ReserveSeatRequest;
+import io.project.concertbooking.interfaces.api.v1.concert.request.ReservationRequest;
 import io.project.concertbooking.interfaces.api.v1.concert.response.GetScheduleResponse;
 import io.project.concertbooking.interfaces.api.v1.concert.response.GetSeatResponse;
-import io.project.concertbooking.interfaces.api.v1.concert.response.ReserveSeatResponse;
+import io.project.concertbooking.interfaces.api.v1.concert.response.ReservationResponse;
+import io.project.concertbooking.interfaces.api.v1.concert.response.mapper.ConcertResponseMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -19,7 +22,11 @@ import java.util.List;
 @Tag(name = "콘서트 조회 및 예약")
 @RestController
 @RequestMapping("/api/v1/concerts")
+@RequiredArgsConstructor
 public class ConcertController {
+
+    private final ReservationFacade reservationFacade;
+    private final ConcertResponseMapper responseMapper;
 
     @Operation(summary = "콘서트 스케줄 조회", description = "콘서트 ID로 콘서트의 스케줄을 조회합니다.")
     @ApiResponses(value = {
@@ -32,19 +39,19 @@ public class ConcertController {
             @PathVariable("concertId") @Parameter(description = "콘서트 ID", example = "9") Long concertId
     ) {
         return ApiResponse.ok(GetScheduleResponse.builder()
-                        .concertId(2L)
-                        .schedules(List.of(
-                                        GetScheduleResponse.Schedule.builder()
-                                                .scheduleId(11L)
-                                                .scheduleDt(LocalDateTime.of(2025, Month.MAY, 1, 15, 0))
-                                                .build(),
-                                        GetScheduleResponse.Schedule.builder()
-                                                .scheduleId(12L)
-                                                .scheduleDt(LocalDateTime.of(2025, Month.MAY, 8, 15, 0))
-                                                .build()
-                                )
+                .concertId(2L)
+                .schedules(List.of(
+                                GetScheduleResponse.Schedule.builder()
+                                        .scheduleId(11L)
+                                        .scheduleDt(LocalDateTime.of(2025, Month.MAY, 1, 15, 0))
+                                        .build(),
+                                GetScheduleResponse.Schedule.builder()
+                                        .scheduleId(12L)
+                                        .scheduleDt(LocalDateTime.of(2025, Month.MAY, 8, 15, 0))
+                                        .build()
                         )
-                        .build()
+                )
+                .build()
         );
     }
 
@@ -59,8 +66,8 @@ public class ConcertController {
             @PathVariable("concertScheduleId") @Parameter(description = "콘서트 스케줄 ID", example = "1") Long concertScheduleId
     ) {
         return ApiResponse.ok(GetSeatResponse.builder()
-                        .concertScheduleId(11L)
-                        .seats(List.of(
+                .concertScheduleId(11L)
+                .seats(List.of(
                                 GetSeatResponse.Seat.builder()
                                         .seatId(1L)
                                         .seatNumber(10)
@@ -71,9 +78,9 @@ public class ConcertController {
                                         .seatNumber(12)
                                         .price(20000)
                                         .build()
-                                )
                         )
-                        .build()
+                )
+                .build()
         );
     }
 
@@ -82,18 +89,17 @@ public class ConcertController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "예약 성공")
     })
     @TokenRequired
-    @PostMapping("/schedules/{concertScheduleId}/reservation/seats/{seatId}")
-    public ApiResponse<?> reserveSeat(
+    @PostMapping("/schedules/{concertScheduleId}/reservations")
+    public ApiResponse<?> reservations(
             @RequestHeader("Queue-Token") @Parameter(description = "대기열 토큰", example = "123e4567-e89b-12d3-a456-426614174000") String queueToken,
             @PathVariable("concertScheduleId") @Parameter(description = "콘서트 스케줄 ID", example = "1") Long concertScheduleId,
-            @PathVariable("seatId") @Parameter(description = "좌석 ID", example = "31") Long seatId,
-            @RequestBody ReserveSeatRequest reserveSeatRequest
+            @RequestBody ReservationRequest reservationRequest
     ) {
-        return ApiResponse.ok(ReserveSeatResponse.builder()
-                .seatReservationId(1L)
-                .concertScheduleId(22L)
-                .seatNumber(11)
-                .price(10000)
-                .build());
+        return ApiResponse.ok(ReservationResponse.of(
+                reservationFacade.reserve(concertScheduleId, reservationRequest.getUserId(), reservationRequest.getSeatIds())
+                        .stream()
+                        .map(responseMapper::toReservationInfoOfResponse)
+                        .toList()
+        ));
     }
 }
