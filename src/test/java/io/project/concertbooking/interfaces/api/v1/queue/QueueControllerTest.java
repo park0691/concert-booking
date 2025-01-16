@@ -46,7 +46,7 @@ class QueueControllerTest extends IntegrationTestSupport {
     QueueJpaRepository queueJpaRepository;
 
     @Nested
-    @DisplayName("[issueQueueToken() - 대기열 토큰 발급 테스트]")
+    @DisplayName("[issueQueueToken() - 대기열 토큰 발급 API 테스트]")
     class IssueQueueToken {
 
         @DisplayName("존재하지 않는 유저 아이디로 대기열 토큰 발급 요청시 에러 응답을 반환한다.")
@@ -94,7 +94,7 @@ class QueueControllerTest extends IntegrationTestSupport {
     }
 
     @Nested
-    @DisplayName("[getQueueStatus() - 대기열 토큰 상태 조회 테스트]")
+    @DisplayName("[getQueueStatus() - 대기열 토큰 상태 조회 API 테스트]")
     class GetQueueStatus {
 
         @DisplayName("헤더에 대기열 토큰이 없으면 에러 응답을 반환한다.")
