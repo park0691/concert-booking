@@ -23,7 +23,6 @@ public class ReservationService {
     private final IConcertRepository concertRepository;
     private final SeatValidator seatValidator;
     private final ScheduleValidator scheduleValidator;
-    private final QueueConstants queueConstants;
 
     @Transactional
     public List<Reservation> createReservation(User user, ConcertSchedule concertSchedule, List<Seat> seats) {
@@ -31,7 +30,7 @@ public class ReservationService {
         LocalDateTime now = LocalDateTime.now();
         scheduleValidator.checkIfReservable(concertSchedule, now);
 
-        // 예약 완료 상태인지 검증
+        // 예약 가능한 좌석인지 검증
         seatValidator.checkIfSeatsReservable(seats);
 
         // 좌석 예약

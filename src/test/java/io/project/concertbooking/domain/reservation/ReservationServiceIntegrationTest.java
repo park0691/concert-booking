@@ -1,25 +1,27 @@
 package io.project.concertbooking.domain.reservation;
 
+import com.navercorp.fixturemonkey.customizer.Values;
 import io.project.concertbooking.domain.concert.Seat;
 import io.project.concertbooking.domain.concert.enums.SeatStatus;
 import io.project.concertbooking.domain.reservation.enums.ReservationStatus;
 import io.project.concertbooking.infrastructure.concert.repository.SeatJpaRepository;
 import io.project.concertbooking.infrastructure.reservation.ReservationJpaRepository;
-import io.project.concertbooking.support.IntegrationTestSupport;
+import io.project.concertbooking.support.IntegrationTestSupportWithNoAuditing;
 import net.jqwik.api.Arbitraries;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.AuditorAware;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReservationServiceIntegrationTest extends IntegrationTestSupport {
+@DisplayName("[ReservationService - 통합 테스트]")
+class ReservationServiceIntegrationTest extends IntegrationTestSupportWithNoAuditing {
 
     @Autowired
     ReservationService seatService;
@@ -30,95 +32,102 @@ class ReservationServiceIntegrationTest extends IntegrationTestSupport {
     @Autowired
     ReservationJpaRepository reservationJpaRepository;
 
-    @Mock
-    private AuditorAware<String> auditorAware;
+    @Nested
+    @DisplayName("[expireReservation() - 예약 만료 처리 테스트]")
+    class ExpireReservationTest {
 
-    @BeforeEach
-    void beforeEach() {
-        seatJpaRepository.deleteAllInBatch();
-        reservationJpaRepository.deleteAllInBatch();
-    }
+        @Transactional
+        @DisplayName("예약한 후 5분이 지난 예약만 만료 처리되고, 해당 좌석은 빈 상태로 바뀐다.")
+        @Test
+        void expireReservation() {
+            // given
+            AtomicInteger seatNumber = new AtomicInteger(0);
+            Seat seat1 = fixtureMonkey.giveMeBuilder(Seat.class)
+                    .setNull("concertSchedule")
+                    .setLazy("number", () -> seatNumber.addAndGet(1))
+                    .set("price", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(10).map(n -> n * 10000))
+                    .set("status", Values.just(SeatStatus.EMPTY))
+                    .sample();
+            Seat seat2 = fixtureMonkey.giveMeBuilder(Seat.class)
+                    .setNull("concertSchedule")
+                    .setLazy("number", () -> seatNumber.addAndGet(1))
+                    .set("price", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(10).map(n -> n * 10000))
+                    .set("status", Values.just(SeatStatus.RESERVED))
+                    .sample();
+            Seat seat3 = fixtureMonkey.giveMeBuilder(Seat.class)
+                    .setNull("concertSchedule")
+                    .setLazy("number", () -> seatNumber.addAndGet(1))
+                    .set("price", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(10).map(n -> n * 10000))
+                    .set("status", Values.just(SeatStatus.EMPTY))
+                    .sample();
+            Seat seat4 = fixtureMonkey.giveMeBuilder(Seat.class)
+                    .setNull("concertSchedule")
+                    .setLazy("number", () -> seatNumber.addAndGet(1))
+                    .set("price", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(10).map(n -> n * 10000))
+                    .set("status", Values.just(SeatStatus.RESERVED))
+                    .sample();
+            Seat seat5 = fixtureMonkey.giveMeBuilder(Seat.class)
+                    .setNull("concertSchedule")
+                    .setLazy("number", () -> seatNumber.addAndGet(1))
+                    .set("price", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(10).map(n -> n * 10000))
+                    .set("status", Values.just(SeatStatus.OCCUPIED))
+                    .sample();
+            Seat seat6 = fixtureMonkey.giveMeBuilder(Seat.class)
+                    .setNull("concertSchedule")
+                    .setLazy("number", () -> seatNumber.addAndGet(1))
+                    .set("price", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(10).map(n -> n * 10000))
+                    .set("status", Values.just(SeatStatus.RESERVED))
+                    .sample();
+            Seat seat7 = fixtureMonkey.giveMeBuilder(Seat.class)
+                    .setNull("concertSchedule")
+                    .setLazy("number", () -> seatNumber.addAndGet(1))
+                    .set("price", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(10).map(n -> n * 10000))
+                    .set("status", Values.just(SeatStatus.RESERVED))
+                    .sample();
+            seatJpaRepository.saveAll(List.of(seat1, seat2, seat3, seat4, seat5, seat6, seat7));
 
-    @DisplayName("예약한 후 5분이 지난 예약을 만료시킨다.")
-    @Test
-    void expireReservation() {
-        // given
-        Seat seat1 = fixtureMonkey.giveMeBuilder(Seat.class)
-                .setNull("concertSchedule")
-                .set("number", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", SeatStatus.EMPTY)
-                .sample();
-        Seat seat2 = fixtureMonkey.giveMeBuilder(Seat.class)
-                .setNull("concertSchedule")
-                .set("number", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", SeatStatus.RESERVED)
-                .sample();
-        Seat seat3 = fixtureMonkey.giveMeBuilder(Seat.class)
-                .setNull("concertSchedule")
-                .set("number", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", SeatStatus.EMPTY)
-                .sample();
-        Seat seat4 = fixtureMonkey.giveMeBuilder(Seat.class)
-                .setNull("concertSchedule")
-                .set("number", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", SeatStatus.RESERVED)
-                .sample();
-        Seat seat5 = fixtureMonkey.giveMeBuilder(Seat.class)
-                .setNull("concertSchedule")
-                .set("number", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", SeatStatus.OCCUPIED)
-                .sample();
-        Seat seat6 = fixtureMonkey.giveMeBuilder(Seat.class)
-                .setNull("concertSchedule")
-                .set("number", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", SeatStatus.RESERVED)
-                .sample();
-        Seat seat7 = fixtureMonkey.giveMeBuilder(Seat.class)
-                .setNull("concertSchedule")
-                .set("number", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", SeatStatus.RESERVED)
-                .sample();
-        seatJpaRepository.saveAll(List.of(seat1, seat2, seat3, seat4, seat5, seat6, seat7));
+            LocalDateTime now = LocalDateTime.now();
+            Reservation reservation1 = fixtureMonkey.giveMeBuilder(Reservation.class)
+                    .setNull("user")
+                    .set("seat", Values.just(seat2))
+                    .set("seatNumber", seat2.getNumber())
+                    .set("status", ReservationStatus.RESERVED)
+                    .set("regDt", now.minusMinutes(4))
+                    .sample();
+            Reservation reservation2 = fixtureMonkey.giveMeBuilder(Reservation.class)
+                    .setNull("user")
+                    .set("seat", Values.just(seat4))
+                    .set("seatNumber", seat4.getNumber())
+                    .set("status", ReservationStatus.RESERVED)
+                    .set("regDt", now.minusMinutes(5))
+                    .sample();
+            Reservation reservation3 = fixtureMonkey.giveMeBuilder(Reservation.class)
+                    .setNull("user")
+                    .set("seat", Values.just(seat6))
+                    .set("seatNumber", seat6.getNumber())
+                    .set("status", ReservationStatus.RESERVED)
+                    .set("regDt", now.minusMinutes(6))
+                    .sample();
+            Reservation reservation4 = fixtureMonkey.giveMeBuilder(Reservation.class)
+                    .setNull("user")
+                    .set("seat", Values.just(seat7))
+                    .set("seatNumber", seat7.getNumber())
+                    .set("status", ReservationStatus.RESERVED)
+                    .set("regDt", now.minusMinutes(7))
+                    .sample();
+            reservationJpaRepository.saveAll(List.of(reservation1, reservation2, reservation3, reservation4));
 
-        LocalDateTime now = LocalDateTime.now();
-        Reservation reservation1 = fixtureMonkey.giveMeBuilder(Reservation.class)
-                .setNull("user")
-                .set("seat", seat2)
-                .set("seatNumber", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", ReservationStatus.RESERVED)
-                .set("regDt", now.minusMinutes(4))
-                .sample();
-        Reservation reservation2 = fixtureMonkey.giveMeBuilder(Reservation.class)
-                .setNull("user")
-                .set("seat", seat4)
-                .set("seatNumber", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", ReservationStatus.RESERVED)
-                .set("regDt", now.minusMinutes(5))
-                .sample();
-        Reservation reservation3 = fixtureMonkey.giveMeBuilder(Reservation.class)
-                .setNull("user")
-                .set("seat", seat6)
-                .set("seatNumber", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", ReservationStatus.RESERVED)
-                .set("regDt", now.minusMinutes(6))
-                .sample();
-        Reservation reservation4 = fixtureMonkey.giveMeBuilder(Reservation.class)
-                .setNull("user")
-                .set("seat", seat6)
-                .set("seatNumber", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(50))
-                .set("status", ReservationStatus.RESERVED)
-                .set("regDt", now.minusMinutes(7))
-                .sample();
-        reservationJpaRepository.saveAll(List.of(reservation1, reservation2, reservation3, reservation4));
+            // when
+            seatService.expireReservation(now);
 
-        // when
-        seatService.expireReservation(now);
+            // then
+            List<Reservation> expiredReservations = reservationJpaRepository.findAllByStatus(ReservationStatus.EXPIRED);
+            assertThat(expiredReservations).hasSize(2);
+            assertThat(expiredReservations).containsExactlyInAnyOrder(reservation3, reservation4);
 
-        // then
-        List<Reservation> reservations = reservationJpaRepository.findAllByStatus(ReservationStatus.EXPIRED);
-        assertThat(reservations).hasSize(2);
-
-        List<Seat> seats = seatJpaRepository.findAllByStatus(SeatStatus.EMPTY);
-        assertThat(seats).hasSize(4);
+            List<Seat> emptySeats = seatJpaRepository.findAllByStatus(SeatStatus.EMPTY);
+            assertThat(emptySeats).hasSize(4);
+            assertThat(emptySeats).containsExactlyInAnyOrder(seat1, seat3, seat6, seat7);
+        }
     }
 }
