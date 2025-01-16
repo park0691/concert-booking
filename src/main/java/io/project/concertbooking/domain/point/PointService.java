@@ -42,7 +42,7 @@ public class PointService {
     @Transactional
     public Point use(User user, Integer usePoint) {
         Point point = pointRepository.findByUser(user)
-                .orElseThrow(() -> new CustomException(ErrorCode.POINT_NOT_FOUND));
+                .orElseGet(() -> pointRepository.savePoint(Point.createPoint(user, 0)));
 
         point.use(usePoint);
         saveHistory(user, usePoint, TransactionType.USE);
