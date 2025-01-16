@@ -5,7 +5,7 @@ spring:
       local: common
       prod: common
       test: common
-      test-no-auditing: test, common
+      test-no-auditing: common
 ---
 spring:
   config:
@@ -77,7 +77,7 @@ springdoc:
     display-request-duration: true
     operations-sorter: alpha
 ---
-spring.config.activate.on-profile: test
+spring.config.activate.on-profile: test, test-no-auditing
 
 spring:
   datasource:
