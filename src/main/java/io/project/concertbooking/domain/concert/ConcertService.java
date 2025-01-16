@@ -38,8 +38,12 @@ public class ConcertService {
                 .toList();
     }
 
-    public Seat findSeatById(Long seatId) {
-        return concertRepository.findSeatById(seatId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SEAT_NOT_FOUND));
+    public List<Seat> findSeats(List<Long> seatIds) {
+        List<Seat> seats = concertRepository.findSeats(seatIds);
+
+        if (seatIds.size() != seats.size())
+            throw new CustomException(ErrorCode.SEAT_NOT_FOUND);
+
+        return seats;
     }
 }

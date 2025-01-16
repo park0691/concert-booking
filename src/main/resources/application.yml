@@ -5,6 +5,7 @@ spring:
       local: common
       prod: common
       test: common
+      test-no-auditing: test, common
 ---
 spring:
   config:
@@ -13,6 +14,9 @@ spring:
   application:
     name: concert-booking
   jpa:
+    open-in-view: false
+    generate-ddl: false
+    show-sql: false
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

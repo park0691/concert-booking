@@ -48,8 +48,7 @@ public class Queue {
     private LocalDateTime expDt;
 
     @Builder
-    private Queue(Long queueId, User user, String token, QueueStatus status, LocalDateTime regDt, LocalDateTime modDt, LocalDateTime expDt) {
-        this.queueId = queueId;
+    private Queue(User user, String token, QueueStatus status, LocalDateTime regDt, LocalDateTime modDt, LocalDateTime expDt) {
         this.user = user;
         this.token = token;
         this.status = status;

@@ -9,9 +9,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-@ActiveProfiles("test")
+@ActiveProfiles("test-no-auditing")
 @SpringBootTest
-public abstract class IntegrationTestSupport {
+public abstract class IntegrationTestSupportWithNoAuditing {
 
     @Autowired
     DBInitializer dbInitializer;
