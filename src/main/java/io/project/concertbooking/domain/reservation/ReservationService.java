@@ -1,10 +1,9 @@
 package io.project.concertbooking.domain.reservation;
 
+import io.project.concertbooking.common.constants.QueueConstants;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
-import io.project.concertbooking.domain.concert.ConcertSchedule;
-import io.project.concertbooking.domain.concert.IConcertRepository;
-import io.project.concertbooking.domain.concert.Seat;
+import io.project.concertbooking.domain.concert.*;
 import io.project.concertbooking.domain.reservation.enums.ReservationStatus;
 import io.project.concertbooking.domain.concert.enums.SeatStatus;
 import io.project.concertbooking.domain.user.User;
@@ -22,12 +21,18 @@ public class ReservationService {
 
     private final IReservationRepository reservationRepository;
     private final IConcertRepository concertRepository;
-    private final ReservationValidator reservationValidator;
+    private final SeatValidator seatValidator;
+    private final ScheduleValidator scheduleValidator;
+    private final QueueConstants queueConstants;
 
     @Transactional
     public List<Reservation> createReservation(User user, ConcertSchedule concertSchedule, List<Seat> seats) {
+        // 예약 가능 시간대 검증
+        LocalDateTime now = LocalDateTime.now();
+        scheduleValidator.checkIfReservable(concertSchedule, now);
+
         // 예약 완료 상태인지 검증
-        reservationValidator.checkIfSeatAvailable(seats);
+        seatValidator.checkIfSeatsReservable(seats);
 
         // 좌석 예약
         seats.forEach(Seat::reserve);
