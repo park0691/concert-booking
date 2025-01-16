@@ -20,5 +20,7 @@ public interface IConcertRepository {
 
     List<Seat> findSeats(List<Long> seatIds);
 
+    List<Seat> findSeatsWithLock(List<Long> seatIds);
+
     Seat saveSeat(Seat seat);
 }
