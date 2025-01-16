@@ -48,6 +48,10 @@ public class Seat {
         return this.status == SeatStatus.OCCUPIED;
     }
 
+    public boolean isEmpty() {
+        return this.status == SeatStatus.EMPTY;
+    }
+
     public void reserve() {
         this.status = SeatStatus.RESERVED;
     }

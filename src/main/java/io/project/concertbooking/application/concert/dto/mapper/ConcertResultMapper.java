@@ -1,7 +1,9 @@
 package io.project.concertbooking.application.concert.dto.mapper;
 
 import io.project.concertbooking.application.concert.dto.ScheduleResult;
+import io.project.concertbooking.application.concert.dto.SeatResult;
 import io.project.concertbooking.domain.concert.ConcertSchedule;
+import io.project.concertbooking.domain.concert.Seat;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,7 +24,9 @@ public interface ConcertResultMapper {
     ScheduleResult.Page toSchedulePageOfResult(Page<ConcertSchedule> schedules);
 
     @AfterMapping
-    default void decrementPage(@MappingTarget ScheduleResult.Page page) {
+    default void incrementPage(@MappingTarget ScheduleResult.Page page) {
         page.setPage(page.getPage() + 1);
     }
+
+    SeatResult toSeatResult(Seat seat);
 }
