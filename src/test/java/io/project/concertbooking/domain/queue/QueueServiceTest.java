@@ -3,11 +3,11 @@ package io.project.concertbooking.domain.queue;
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.BuilderArbitraryIntrospector;
 import com.navercorp.fixturemonkey.customizer.Values;
+import io.project.concertbooking.common.constants.QueueConstants;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
 import io.project.concertbooking.domain.queue.enums.QueueStatus;
 import io.project.concertbooking.domain.user.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -35,18 +34,15 @@ class QueueServiceTest {
     @Mock
     IQueueRepository queueRepository;
 
+    @Mock
+    QueueConstants queueConstants;
+
     @InjectMocks
     QueueService queueService;
 
     FixtureMonkey fixtureMonkey = FixtureMonkey.builder()
             .objectIntrospector(BuilderArbitraryIntrospector.INSTANCE)
             .build();
-
-    @BeforeEach
-    void beforeEach() {
-        ReflectionTestUtils.setField(queueService, "QUEUE_MAX_SIZE", 100);
-        ReflectionTestUtils.setField(queueService, "EXPIRE_TIME_MIN", 10);
-    }
 
     @Nested
     @DisplayName("findByUserAndStatus() 테스트")
@@ -101,7 +97,7 @@ class QueueServiceTest {
         assertThat(queue.getStatus()).isEqualTo(QueueStatus.EXPIRED);
     }
 
-    @DisplayName("큐(대기열)를 토큰을 생성한다.")
+    @DisplayName("큐(대기열) 토큰을 생성한다.")
     @Test
     void createQueueToken() {
         // given
@@ -231,6 +227,8 @@ class QueueServiceTest {
     @Test
     void enqueueByActivatingWaitingTokenWhenMaxQueueActivated() {
         // given
+        given(queueConstants.getMaxSize())
+                .willReturn(100);
         given(queueRepository.findCountByStatus(any(QueueStatus.class)))
                 .willReturn(100L);
 

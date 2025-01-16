@@ -1,6 +1,7 @@
 package io.project.concertbooking.interfaces.api.interceptor;
 
 import io.project.concertbooking.common.annotation.TokenRequired;
+import io.project.concertbooking.common.constants.QueueConstants;
 import io.project.concertbooking.domain.queue.QueueService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,9 +19,7 @@ import static java.util.Objects.isNull;
 public class QueueInterceptor implements HandlerInterceptor {
 
     private final QueueService queueService;
-
-    @Value("${queue.request-header-key}")
-    private String queueTokenHeader;
+    private final QueueConstants queueConstants;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -31,7 +30,7 @@ public class QueueInterceptor implements HandlerInterceptor {
         if (isNull(tokenRequired)) {
             return true;
         }
-
+        String queueTokenHeader = queueConstants.getRequestHeaderKey();
         String token = request.getHeader(queueTokenHeader);
         if (isBlank(token)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, queueTokenHeader + " header is missing.");
