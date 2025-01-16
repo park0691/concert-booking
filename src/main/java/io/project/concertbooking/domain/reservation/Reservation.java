@@ -29,7 +29,7 @@ public class Reservation {
     @JoinColumn(name = "USER_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "SEAT_ID", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Seat seat;
 
@@ -68,7 +68,7 @@ public class Reservation {
     }
 
     public void confirm() {
-        this.status = ReservationStatus.CONFIRMED;
+        this.status = ReservationStatus.PAID;
         seat.occupy();
     }
 }

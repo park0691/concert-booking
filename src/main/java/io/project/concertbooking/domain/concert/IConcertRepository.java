@@ -14,9 +14,11 @@ public interface IConcertRepository {
 
     Optional<ConcertSchedule> findScheduleById(Long id);
 
-    Optional<Seat> findSeatById(Long id);
-
     List<Seat> findAllByConcertSchedule(ConcertSchedule concertSchedule);
 
     Long updateSeatStatusIn(SeatStatus status, List<Seat> seats);
+
+    List<Seat> findSeats(List<Long> seatIds);
+
+    Seat saveSeat(Seat seat);
 }

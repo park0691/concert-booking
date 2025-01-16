@@ -1,13 +1,12 @@
-package io.project.concertbooking;
+package io.project.concertbooking.support;
 
 import com.navercorp.fixturemonkey.FixtureMonkey;
 import com.navercorp.fixturemonkey.api.introspector.BuilderArbitraryIntrospector;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@ActiveProfiles("test")
-@SpringBootTest
-public abstract class IntegrationTestSupport {
+@ExtendWith(MockitoExtension.class)
+public abstract class UnitTestSupport {
 
     protected FixtureMonkey fixtureMonkey = FixtureMonkey.builder()
             .objectIntrospector(BuilderArbitraryIntrospector.INSTANCE)
