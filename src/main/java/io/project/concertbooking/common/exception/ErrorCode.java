@@ -20,7 +20,7 @@ public enum ErrorCode {
     SCHEDULE_UNAVAILABLE(BAD_REQUEST, "CN005", "해당 일정에 예약할 수 없습니다."),
 
     /* Reservation */
-    RESERVATION_NOT_FOUND(NOT_FOUND, "RE001", "좌석 예약을 찾을 수 없습니다."),
+    RESERVATION_NOT_FOUND(NOT_FOUND, "RE001", "예약을 찾을 수 없습니다."),
 
     /* Queue */
     TOKEN_NOT_FOUND(NOT_FOUND, "QE001", "발급되지 않은 대기열 토큰입니다."),
