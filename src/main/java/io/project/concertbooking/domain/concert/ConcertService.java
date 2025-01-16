@@ -23,7 +23,7 @@ public class ConcertService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CONCERT_NOT_FOUND));
     }
 
-    public Page<ConcertSchedule> findScheduleByConcert(Concert concert, Pageable pageable) {
+    public Page<ConcertSchedule> findSchedulesBy(Concert concert, Pageable pageable) {
         return concertRepository.findAllScheduleByConcert(concert, pageable);
     }
 
@@ -38,8 +38,12 @@ public class ConcertService {
                 .toList();
     }
 
-    public Seat findSeatById(Long seatId) {
-        return concertRepository.findSeatById(seatId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SEAT_NOT_FOUND));
+    public List<Seat> findSeats(List<Long> seatIds) {
+        List<Seat> seats = concertRepository.findSeats(seatIds);
+
+        if (seatIds.size() != seats.size())
+            throw new CustomException(ErrorCode.SEAT_NOT_FOUND);
+
+        return seats;
     }
 }

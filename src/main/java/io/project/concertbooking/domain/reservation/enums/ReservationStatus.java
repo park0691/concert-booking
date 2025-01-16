@@ -6,8 +6,8 @@ import java.util.Arrays;
 
 @Getter
 public enum ReservationStatus {
-    RESERVED("R", "예약"),
-    CONFIRMED("C", "확정"),
+    RESERVED("R", "예약(결제 대기)"),
+    PAID("P", "결제 완료(확정)"),
     EXPIRED("X", "예약 만료");
 
     private final String dbCode;

@@ -1,10 +1,9 @@
 package io.project.concertbooking.domain.reservation;
 
+import io.project.concertbooking.common.constants.QueueConstants;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
-import io.project.concertbooking.domain.concert.ConcertSchedule;
-import io.project.concertbooking.domain.concert.IConcertRepository;
-import io.project.concertbooking.domain.concert.Seat;
+import io.project.concertbooking.domain.concert.*;
 import io.project.concertbooking.domain.reservation.enums.ReservationStatus;
 import io.project.concertbooking.domain.concert.enums.SeatStatus;
 import io.project.concertbooking.domain.user.User;
@@ -20,41 +19,52 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationService {
 
-    private final IReservationRepository seatRepository;
+    private final IReservationRepository reservationRepository;
     private final IConcertRepository concertRepository;
+    private final SeatValidator seatValidator;
+    private final ScheduleValidator scheduleValidator;
 
     @Transactional
-    public Reservation createReservation(User user, ConcertSchedule concertSchedule, Seat seat) {
-        SeatStatus seatStatus = seat.getStatus();
-        if (seatStatus.equals(SeatStatus.RESERVED) || seatStatus.equals(SeatStatus.OCCUPIED)) {
-            throw new CustomException(ErrorCode.SEAT_NOT_AVAILABLE);
-        }
+    public List<Reservation> createReservation(User user, ConcertSchedule concertSchedule, List<Seat> seats) {
+        // 예약 가능 시간대 검증
+        LocalDateTime now = LocalDateTime.now();
+        scheduleValidator.checkIfReservable(concertSchedule, now);
 
-        seat.reserve();
+        // 예약 가능한 좌석인지 검증
+        seatValidator.checkIfSeatsReservable(seats);
 
-        return seatRepository.save(
-                Reservation.createReservation(
-                        user, seat, seat.getNumber(), seat.getPrice(), ReservationStatus.RESERVED
-                )
-        );
+        // 좌석 예약
+        seats.forEach(Seat::reserve);
+
+        // 예약 생성
+        return seats.stream()
+                .map(seat -> {
+                    concertRepository.saveSeat(seat);
+                    return reservationRepository.save(
+                            Reservation.createReservation(
+                                    user, seat, seat.getNumber(), seat.getPrice(), ReservationStatus.RESERVED
+                            )
+                    );
+                })
+                .toList();
     }
 
     @Transactional
-    public void expireReservation() {
-        LocalDateTime expiredDt = LocalDateTime.now().minusMinutes(5L);
-        List<Reservation> expireTargets = seatRepository.findByStatusAndRegDtLt(ReservationStatus.RESERVED, expiredDt);
-        seatRepository.updateStatusIn(ReservationStatus.EXPIRED, expireTargets);
+    public void expireReservation(LocalDateTime now) {
+        LocalDateTime expiredDt = now.minusMinutes(5L);
+        List<Reservation> expireTargets = reservationRepository.findByStatusAndRegDtLt(ReservationStatus.RESERVED, expiredDt);
+        reservationRepository.updateStatusIn(ReservationStatus.EXPIRED, expireTargets);
         List<Seat> seats = expireTargets.stream().map(Reservation::getSeat).toList();
         concertRepository.updateSeatStatusIn(SeatStatus.EMPTY, seats);
     }
 
     public Reservation findReservation(Long reservationId) {
-        return seatRepository.findById(reservationId)
+        return reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
     }
 
     public void finalizeReservation(Reservation reservation) {
         reservation.confirm();
-        seatRepository.save(reservation);
+        reservationRepository.save(reservation);
     }
 }

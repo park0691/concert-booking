@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface ReservationJpaRepository extends JpaRepository<Reservation, Long> {
     List<Reservation> findAllByStatusAndRegDtBefore(ReservationStatus status, LocalDateTime dateTime);
+
+    List<Reservation> findAllByStatus(ReservationStatus status);
 }

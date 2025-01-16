@@ -40,6 +40,18 @@ public class Seat {
         this.status = status;
     }
 
+    public boolean isReserved() {
+        return this.status == SeatStatus.RESERVED;
+    }
+
+    public boolean isOccupied() {
+        return this.status == SeatStatus.OCCUPIED;
+    }
+
+    public boolean isEmpty() {
+        return this.status == SeatStatus.EMPTY;
+    }
+
     public void reserve() {
         this.status = SeatStatus.RESERVED;
     }

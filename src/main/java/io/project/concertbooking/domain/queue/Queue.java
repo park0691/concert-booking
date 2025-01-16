@@ -48,8 +48,7 @@ public class Queue {
     private LocalDateTime expDt;
 
     @Builder
-    private Queue(Long queueId, User user, String token, QueueStatus status, LocalDateTime regDt, LocalDateTime modDt, LocalDateTime expDt) {
-        this.queueId = queueId;
+    private Queue(User user, String token, QueueStatus status, LocalDateTime regDt, LocalDateTime modDt, LocalDateTime expDt) {
         this.user = user;
         this.token = token;
         this.status = status;
@@ -58,12 +57,21 @@ public class Queue {
         this.expDt = expDt;
     }
 
-    public static Queue create(User user, String token) {
+    public static Queue create(User user, String token, LocalDateTime expDt) {
         return Queue.builder()
                 .user(user)
                 .token(token)
                 .status(QueueStatus.WAITING)
+                .expDt(expDt)
                 .build();
+    }
+
+    public boolean isExpired() {
+        return this.status == QueueStatus.EXPIRED;
+    }
+
+    public boolean isWaiting() {
+        return this.status == QueueStatus.WAITING;
     }
 
     public void expireQueueToken() {

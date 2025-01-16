@@ -1,7 +1,9 @@
 package io.project.concertbooking.domain.queue;
 
+import io.project.concertbooking.common.constants.QueueConstants;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
+import io.project.concertbooking.common.util.TokenGenerateUtil;
 import io.project.concertbooking.domain.queue.enums.QueueStatus;
 import io.project.concertbooking.domain.user.User;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Transactional(readOnly = true)
 @Service
@@ -19,9 +20,9 @@ import java.util.UUID;
 public class QueueService {
 
     private final IQueueRepository queueRepository;
-    private static final int queueMaxSize = 100;
+    private final QueueConstants queueConstants;
 
-    public Optional<Queue> findByUserAndStatus(User user, QueueStatus queueStatus) {
+    public Optional<Queue> findBy(User user, QueueStatus queueStatus) {
         return queueRepository.findByUserAndStatus(user, queueStatus);
     }
 
@@ -32,13 +33,11 @@ public class QueueService {
     }
 
     @Transactional
-    public String createQueueToken(User user) {
-        String token = UUID.randomUUID().toString();
-        Queue queue = queueRepository.save(
-                Queue.create(user, token)
+    public Queue createQueueToken(User user, LocalDateTime now) {
+        String token = TokenGenerateUtil.generateUUIDToken();
+        return queueRepository.save(
+                Queue.create(user, token, now.plusMinutes(queueConstants.getExpireTimeMin()))
         );
-
-        return queue.getToken();
     }
 
     public Queue findByToken(String token) {
@@ -50,6 +49,15 @@ public class QueueService {
         return queueRepository.findCountByIdAndStatus(queueId, QueueStatus.WAITING);
     }
 
+    public void validateToken(String token) {
+        Queue queue = queueRepository.findByToken(token)
+                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
+
+        if (queue.isExpired() || queue.isWaiting()) {
+            throw new CustomException(ErrorCode.TOKEN_NOT_ACTIVE);
+        }
+    }
+
     @Transactional
     public void dequeueByExpiringOutdatedToken() {
         queueRepository.updateStatusByExpDtLt(QueueStatus.EXPIRED, LocalDateTime.now());
@@ -58,7 +66,7 @@ public class QueueService {
     @Transactional
     public void enqueueByActivatingWaitingToken() {
         int activeQueueCount = queueRepository.findCountByStatus(QueueStatus.ACTIVATED).intValue();
-        int activeCandidateQueueCount = queueMaxSize - activeQueueCount;
+        int activeCandidateQueueCount = queueConstants.getMaxSize() - activeQueueCount;
 
         if (activeCandidateQueueCount > 0) {
             List<Long> activeCandidateQueueIds = queueRepository.findAllWaitingLimit(activeCandidateQueueCount)
