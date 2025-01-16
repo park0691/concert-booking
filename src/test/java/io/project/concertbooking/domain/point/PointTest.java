@@ -1,20 +1,16 @@
 package io.project.concertbooking.domain.point;
 
-import com.navercorp.fixturemonkey.FixtureMonkey;
-import com.navercorp.fixturemonkey.api.introspector.BuilderArbitraryIntrospector;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
+import io.project.concertbooking.support.UnitTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class PointTest {
-
-    FixtureMonkey fixtureMonkey = FixtureMonkey.builder()
-            .objectIntrospector(BuilderArbitraryIntrospector.INSTANCE)
-            .build();
+@DisplayName("[Point - 단위 테스트]")
+class PointTest extends UnitTestSupport {
 
     @DisplayName("포인트를 충전한다.")
     @Test
