@@ -24,7 +24,7 @@ public class QueueFacade {
     public String issueQueueToken(Long userId) {
         User user = userService.findById(userId);
 
-        queueService.findByUserAndStatus(user, QueueStatus.WAITING)
+        queueService.findBy(user, QueueStatus.WAITING)
                 .ifPresent(queueService::expire);
 
         return queueService.createQueueToken(user, LocalDateTime.now());

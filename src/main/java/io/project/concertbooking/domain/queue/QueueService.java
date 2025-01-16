@@ -22,7 +22,7 @@ public class QueueService {
     private final IQueueRepository queueRepository;
     private final QueueConstants queueConstants;
 
-    public Optional<Queue> findByUserAndStatus(User user, QueueStatus queueStatus) {
+    public Optional<Queue> findBy(User user, QueueStatus queueStatus) {
         return queueRepository.findByUserAndStatus(user, queueStatus);
     }
 
