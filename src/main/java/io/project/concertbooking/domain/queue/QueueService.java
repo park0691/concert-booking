@@ -33,13 +33,11 @@ public class QueueService {
     }
 
     @Transactional
-    public String createQueueToken(User user, LocalDateTime now) {
+    public Queue createQueueToken(User user, LocalDateTime now) {
         String token = TokenGenerateUtil.generateUUIDToken();
-        Queue queue = queueRepository.save(
+        return queueRepository.save(
                 Queue.create(user, token, now.plusMinutes(queueConstants.getExpireTimeMin()))
         );
-
-        return queue.getToken();
     }
 
     public Queue findByToken(String token) {
