@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -222,6 +223,125 @@ class ConcertControllerIntegrationTest extends IntegrationTestSupport {
                     .andExpect(jsonPath("$.data.page.dataCount").value(5))
                     .andExpect(jsonPath("$.data.page.dataTotalCount").value(concertSchedules.size()))
                     .andExpect(jsonPath("$.data.page.pageTotalCount").value(14));
+        }
+    }
+
+    @Nested
+    @DisplayName("[seats() - 콘서트 예약 가능 좌석 조회 API 테스트]")
+    class SeatsTest {
+
+        @DisplayName("발급되지 않은 토큰으로 요청시 에러 응답을 반환한다.")
+        @Test
+        void requestWithInvalidToken() throws Exception {
+            mockMvc.perform(
+                            get("/api/v1/concerts/schedules/1/seats")
+                                    .header(queueConstants.getRequestHeaderKey(), "bla_bla_bla")
+                    )
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("QE001"));
+        }
+
+        @DisplayName("활성화되지 않은 토큰으로 요청시 에러 응답을 반환한다.")
+        @ParameterizedTest
+        @EnumSource(value = QueueStatus.class, names = {"WAITING", "EXPIRED"})
+        void requestWithNonActivatedToken(QueueStatus queueStatus) throws Exception {
+            // given
+            LocalDateTime now = LocalDateTime.now();
+            String token = TokenGenerateUtil.generateUUIDToken();
+            queueJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Queue.class)
+                            .setNull("user")
+                            .set("status", Values.just(queueStatus))
+                            .set("token", Values.just(token))
+                            .set("expDt", now.plusMinutes(10L))
+                            .sample()
+            );
+
+            // when, then
+            mockMvc.perform(
+                            get("/api/v1/concerts/schedules/1/seats")
+                                    .header(queueConstants.getRequestHeaderKey(), token)
+                    )
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.code").value("QE002"));
+        }
+
+        @DisplayName("존재하지 않는 콘서트 스케줄 아이디로 좌석 조회 요청시 에러 응답을 반환한다.")
+        @Test
+        void requestWithInvalidScheduleId() throws Exception {
+            // given
+            User user = userJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(User.class)
+                            .sample()
+            );
+            String token = TokenGenerateUtil.generateUUIDToken();
+            LocalDateTime now = LocalDateTime.now();
+            Queue queue = queueJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Queue.class)
+                            .set("user", Values.just(user))
+                            .set("status", Values.just(QueueStatus.ACTIVATED))
+                            .set("token", Values.just(token))
+                            .set("expDt", now.plusMinutes(10L))
+                            .sample()
+            );
+            // when, then
+            mockMvc.perform(
+                            get("/api/v1/concerts/schedules/99/seats")
+                                    .header(queueConstants.getRequestHeaderKey(), token)
+                    )
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("CN001"));
+        }
+
+        @DisplayName("콘서트 스케줄 아이디로 예약 가능 좌석을 조회한다.")
+        @Test
+        void seats() throws Exception {
+            // given
+            User user = userJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(User.class)
+                            .sample()
+            );
+            String token = TokenGenerateUtil.generateUUIDToken();
+            LocalDateTime now = LocalDateTime.now();
+            Queue queue = queueJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Queue.class)
+                            .set("user", Values.just(user))
+                            .set("status", Values.just(QueueStatus.ACTIVATED))
+                            .set("token", Values.just(token))
+                            .set("expDt", now.plusMinutes(10L))
+                            .sample()
+            );
+            Concert concert = concertJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(Concert.class)
+                            .set("name", Arbitraries.strings().withCharRange('A', 'Z').ofLength(10).map(s -> s + " Concert"))
+                            .sample()
+            );
+            ConcertSchedule schedule = concertScheduleJpaRepository.save(
+                    fixtureMonkey.giveMeBuilder(ConcertSchedule.class)
+                            .set("concert", Values.just(concert))
+                            .set("scheduleDt", DateTimes.dateTimes().atTheEarliest(now.plusDays(7L))
+                                    .atTheLatest(now.plusDays(60L)))
+                            .sample()
+            );
+            AtomicInteger seatNumber = new AtomicInteger(0);
+            List<Seat> seats = fixtureMonkey.giveMeBuilder(Seat.class)
+                    .set("concertSchedule", Values.just(schedule))
+                    .setLazy("number", () -> seatNumber.addAndGet(1))
+                    .set("price", Arbitraries.integers().greaterOrEqual(1).lessOrEqual(10).map(n -> n * 10000))
+                    .set("status", Arbitraries.of(SeatStatus.EMPTY, SeatStatus.RESERVED, SeatStatus.OCCUPIED))
+                    .sampleList(50);
+            ReflectionTestUtils.setField(seats.getFirst(), "status", SeatStatus.EMPTY);
+            seatJpaRepository.saveAll(seats);
+
+            // when, then
+            mockMvc.perform(
+                            get("/api/v1/concerts/schedules/%d/seats".formatted(schedule.getConcertScheduleId()))
+                                    .header(queueConstants.getRequestHeaderKey(), token)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.code").value(200))
+                    .andExpect(jsonPath("$.data.seats").isNotEmpty())
+                    .andExpect(jsonPath("$.data.seats").isArray());
         }
     }
 
@@ -485,8 +605,6 @@ class ConcertControllerIntegrationTest extends IntegrationTestSupport {
                     .set("status", Values.just(SeatStatus.EMPTY))
                     .sampleList(10);
             seatJpaRepository.saveAll(seats);
-
-
 
             Seat firstSeat = seats.get(2);
             Seat secondSeat = seats.get(8);
