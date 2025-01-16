@@ -23,7 +23,7 @@ public class ConcertService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CONCERT_NOT_FOUND));
     }
 
-    public Page<ConcertSchedule> findScheduleByConcert(Concert concert, Pageable pageable) {
+    public Page<ConcertSchedule> findSchedulesBy(Concert concert, Pageable pageable) {
         return concertRepository.findAllScheduleByConcert(concert, pageable);
     }
 
