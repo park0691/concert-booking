@@ -111,11 +111,11 @@ class QueueServiceTest extends UnitTestSupport {
                     .willReturn(queue);
 
             // when
-            String token = queueService.createQueueToken(user, now);
+            Queue token = queueService.createQueueToken(user, now);
 
             // then
             assertThat(token).isNotNull();
-            assertThat(token).isNotBlank();
+            assertThat(token).usingRecursiveComparison().isEqualTo(queue);
         }
     }
 
