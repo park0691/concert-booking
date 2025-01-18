@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -36,22 +38,23 @@ public class LoggingFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
-
-        logRequest(requestWrapper);
-        filterChain.doFilter(requestWrapper, responseWrapper);
-        logResponse(responseWrapper);
-        responseWrapper.copyBodyToResponse();
+        long startTime = System.currentTimeMillis();
+        MDC.put("requestId", UUID.randomUUID().toString().substring(0, 8));
+        try {
+            filterChain.doFilter(requestWrapper, responseWrapper);
+            logRequest(requestWrapper);
+        } finally {
+            logResponse(responseWrapper, startTime);
+            responseWrapper.copyBodyToResponse();
+        }
+        MDC.clear();
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String requestURI = request.getRequestURI();
-        if (!pathMatcher.match(ALLOWED_PATTERN, requestURI)
-                || EXCLUDE_PATTERNS.stream().anyMatch(pattern -> pathMatcher.match(pattern, requestURI))
-        ) {
-            return true;
-        }
-        return false;
+        return !pathMatcher.match(ALLOWED_PATTERN, requestURI)
+                || EXCLUDE_PATTERNS.stream().anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 
     private void logRequest(ContentCachingRequestWrapper request) {
@@ -59,6 +62,7 @@ public class LoggingFilter extends OncePerRequestFilter {
         log.info("""
                 
                 === [REQUEST] ===
+                >> Request ID = {}
                 >> Method: {}
                 >> URL: {}
                 >> Headers: {}
@@ -66,6 +70,7 @@ public class LoggingFilter extends OncePerRequestFilter {
                 >> {}
                 =================
                 """,
+                MDC.get("requestId"),
                 request.getMethod(),
                 isNull(queryString) ? request.getRequestURI() : request.getRequestURI() + "?" + queryString,
                 getHeaderToString(request),
@@ -74,15 +79,19 @@ public class LoggingFilter extends OncePerRequestFilter {
         );
     }
 
-    private void logResponse(ContentCachingResponseWrapper response) {
+    private void logResponse(ContentCachingResponseWrapper response, long startTime) {
         log.info("""
                 
                 === [RESPONSE] ===
+                >> Request ID = {}
                 >> Status: {}
+                >> Transaction Time = {} ms
                 >> {}
                 ==================
                 """,
+                MDC.get("requestId"),
                 response.getStatus(),
+                System.currentTimeMillis() - startTime,
                 getPayloadToString(response.getContentType(), response.getContentAsByteArray())
         );
     }
