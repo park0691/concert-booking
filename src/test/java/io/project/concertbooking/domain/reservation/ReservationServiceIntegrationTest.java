@@ -6,6 +6,7 @@ import io.project.concertbooking.domain.concert.enums.SeatStatus;
 import io.project.concertbooking.domain.reservation.enums.ReservationStatus;
 import io.project.concertbooking.infrastructure.concert.repository.SeatJpaRepository;
 import io.project.concertbooking.infrastructure.reservation.ReservationJpaRepository;
+import io.project.concertbooking.support.CustomDateTimeProvider;
 import io.project.concertbooking.support.IntegrationTestSupportWithNoAuditing;
 import net.jqwik.api.Arbitraries;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +32,9 @@ class ReservationServiceIntegrationTest extends IntegrationTestSupportWithNoAudi
 
     @Autowired
     ReservationJpaRepository reservationJpaRepository;
+
+    @Autowired
+    CustomDateTimeProvider customDateTimeProvider;
 
     @Nested
     @DisplayName("[expireReservation() - 예약 만료 처리 테스트]")
@@ -87,35 +91,38 @@ class ReservationServiceIntegrationTest extends IntegrationTestSupportWithNoAudi
             seatJpaRepository.saveAll(List.of(seat1, seat2, seat3, seat4, seat5, seat6, seat7));
 
             LocalDateTime now = LocalDateTime.now();
+            customDateTimeProvider.setUserDefinedTime(now.minusMinutes(4));
             Reservation reservation1 = fixtureMonkey.giveMeBuilder(Reservation.class)
                     .setNull("user")
                     .set("seat", Values.just(seat2))
                     .set("seatNumber", seat2.getNumber())
                     .set("status", ReservationStatus.RESERVED)
-                    .set("regDt", now.minusMinutes(4))
                     .sample();
+            reservationJpaRepository.save(reservation1);
+            customDateTimeProvider.setUserDefinedTime(now.minusMinutes(5));
             Reservation reservation2 = fixtureMonkey.giveMeBuilder(Reservation.class)
                     .setNull("user")
                     .set("seat", Values.just(seat4))
                     .set("seatNumber", seat4.getNumber())
                     .set("status", ReservationStatus.RESERVED)
-                    .set("regDt", now.minusMinutes(5))
                     .sample();
+            reservationJpaRepository.save(reservation2);
+            customDateTimeProvider.setUserDefinedTime(now.minusMinutes(6));
             Reservation reservation3 = fixtureMonkey.giveMeBuilder(Reservation.class)
                     .setNull("user")
                     .set("seat", Values.just(seat6))
                     .set("seatNumber", seat6.getNumber())
                     .set("status", ReservationStatus.RESERVED)
-                    .set("regDt", now.minusMinutes(6))
                     .sample();
+            reservationJpaRepository.save(reservation3);
+            customDateTimeProvider.setUserDefinedTime(now.minusMinutes(7));
             Reservation reservation4 = fixtureMonkey.giveMeBuilder(Reservation.class)
                     .setNull("user")
                     .set("seat", Values.just(seat7))
                     .set("seatNumber", seat7.getNumber())
                     .set("status", ReservationStatus.RESERVED)
-                    .set("regDt", now.minusMinutes(7))
                     .sample();
-            reservationJpaRepository.saveAll(List.of(reservation1, reservation2, reservation3, reservation4));
+            reservationJpaRepository.save(reservation4);
 
             // when
             seatService.expireReservation(now);
