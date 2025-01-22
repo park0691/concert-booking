@@ -40,6 +40,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  data:
+    redis:
+      host:
+      port:
+      repositories:
+        enabled: false
 decorator:
   datasource:
     p6spy:
@@ -60,6 +66,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      repositories:
+        enabled: false
   devtools:
     restart:
       enabled: true
@@ -67,6 +79,9 @@ decorator:
   datasource:
     p6spy:
       enable-logging: true
+logging:
+  level:
+    org.springframework.transaction.interceptor: trace
 springdoc:
   packages-to-scan: io.project.concertbooking.interfaces.api.v1
   default-consumes-media-type: application/json;charset=UTF-8
@@ -85,7 +100,16 @@ spring:
     url: jdbc:tc:mysql:8.3.0:///concert?TC_INITSCRIPT=file:src/main/resources/schema.sql
     username: application
     password: application
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      repositories:
+        enabled: false
 decorator:
   datasource:
     p6spy:
       enable-logging: true
+logging:
+  level:
+    org.springframework.transaction.interceptor: trace

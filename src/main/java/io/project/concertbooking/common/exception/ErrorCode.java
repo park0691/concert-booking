@@ -9,6 +9,9 @@ import static org.springframework.http.HttpStatus.*;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+    /* Common */
+    COMMON_BAD_REQUEST(BAD_REQUEST, "CN001", "잘못된 요청입니다."),
+
     /* User */
     USER_NOT_FOUND(NOT_FOUND, "US001", "해당 유저의 정보를 찾을 수 없습니다."),
 
