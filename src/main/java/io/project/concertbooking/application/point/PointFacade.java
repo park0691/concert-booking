@@ -21,7 +21,7 @@ public class PointFacade {
     @Transactional
     public PointResult chargePoint(Long userId, Integer point) {
         User user = userService.findById(userId);
-        return resultMapper.toPointResult(pointService.chargeWithLock(user, point));
+        return resultMapper.toPointResult(pointService.chargeWithDistributedSimpleLock(user, point));
     }
 
     public PointResult getPoint(Long userId) {

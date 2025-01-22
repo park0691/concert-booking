@@ -1,5 +1,6 @@
 package io.project.concertbooking.domain.point;
 
+import io.project.concertbooking.common.annotation.DistributedSimpleLock;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
 import io.project.concertbooking.domain.point.enums.TransactionType;
@@ -57,7 +58,36 @@ public class PointService {
     }
 
     @Transactional
+    @DistributedSimpleLock(key = "'point:' + #user.userId")
+    public Point chargeWithDistributedSimpleLock(User user, Integer chargePoint) {
+        Optional<Point> pointOpt = pointRepository.findByUser(user);
+
+        Point point;
+
+        if (pointOpt.isPresent()) {
+            point = pointOpt.get();
+            point.charge(chargePoint);
+        } else {
+            point = Point.createPoint(user, chargePoint);
+        }
+        saveHistory(user, chargePoint, TransactionType.CHARGE);
+
+        return pointRepository.savePoint(point);
+    }
+
+    @Transactional
     public Point use(User user, Integer usePoint) {
+        Point point = pointRepository.findByUser(user)
+                .orElseGet(() -> pointRepository.savePoint(Point.createPoint(user, 0)));
+
+        point.use(usePoint);
+        saveHistory(user, usePoint, TransactionType.USE);
+        return point;
+    }
+
+    @Transactional
+    @DistributedSimpleLock(key = "'point:' + #user.userId")
+    public Point useWithDistributedSimpleLock(User user, Integer usePoint) {
         Point point = pointRepository.findByUser(user)
                 .orElseGet(() -> pointRepository.savePoint(Point.createPoint(user, 0)));
 
