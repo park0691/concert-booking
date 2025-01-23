@@ -1,6 +1,7 @@
 package io.project.concertbooking.application.reservation;
 
 import io.project.concertbooking.application.reservation.dto.ReservationResult;
+import io.project.concertbooking.common.annotation.DistributedMultiLock;
 import io.project.concertbooking.domain.concert.ConcertSchedule;
 import io.project.concertbooking.domain.concert.ConcertService;
 import io.project.concertbooking.domain.concert.Seat;
@@ -23,10 +24,14 @@ public class ReservationFacade {
     private final ConcertService concertService;
 
     @Transactional
+    @DistributedMultiLock(
+            keyPrefix = "seat:",
+            keyIds = "#seatIds.stream().map(#convertToString()).collect(T(java.util.stream.Collectors).joining(','))"
+    )
     public List<ReservationResult> reserve(Long concertScheduleId, Long userId, List<Long> seatIds) {
         User user = userService.findById(userId);
         ConcertSchedule concertSchedule = concertService.findScheduleById(concertScheduleId);
-        List<Seat> seats = concertService.findSeatsWithLock(seatIds);
+        List<Seat> seats = concertService.findSeats(seatIds);
         List<Reservation> reservations = reservationService.createReservation(user, concertSchedule, seats);
         return reservations.stream()
                 .map(r -> ReservationResult.of(r, concertSchedule))
