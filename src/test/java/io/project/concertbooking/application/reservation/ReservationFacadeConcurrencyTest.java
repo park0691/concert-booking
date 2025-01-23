@@ -19,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.RepeatedTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -106,7 +107,7 @@ public class ReservationFacadeConcurrencyTest extends IntegrationTestSupport {
                         reservationFacade.reserve(schedule.getConcertScheduleId(), user.getUserId(),
                                 List.of(seat1.getSeatId(), seat2.getSeatId()));
                         successCount.incrementAndGet();
-                    } catch (CustomException e) {
+                    } catch (ObjectOptimisticLockingFailureException | CustomException e) {
                         failCount.incrementAndGet();
                     } finally {
                         latch.countDown();

@@ -55,7 +55,7 @@ public class ConcertRepositoryImpl implements IConcertRepository {
 
     @Override
     public List<Seat> findSeatsWithLock(List<Long> seatIds) {
-        return seatJpaRepository.findAllByIdWithPessimisticLock(seatIds);
+        return seatJpaRepository.findAllByIdWithOptimisticLock(seatIds);
     }
 
     @Override

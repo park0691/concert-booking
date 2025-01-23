@@ -32,6 +32,10 @@ public class Seat {
     @Convert(converter = SeatStatusConverter.class)
     private SeatStatus status;
 
+    @Version
+    @Column(name = "VERSION")
+    private Long version;
+
     @Builder
     private Seat(ConcertSchedule concertSchedule, Integer number, Integer price, SeatStatus status) {
         this.concertSchedule = concertSchedule;
