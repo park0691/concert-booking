@@ -11,6 +11,7 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode {
     /* Common */
     COMMON_BAD_REQUEST(BAD_REQUEST, "CN001", "잘못된 요청입니다."),
+    COMMON_REQUEST_CONFLICT(CONFLICT, "CN002", "리소스 충돌로 처리에 실패했습니다."),
 
     /* User */
     USER_NOT_FOUND(NOT_FOUND, "US001", "해당 유저의 정보를 찾을 수 없습니다."),
