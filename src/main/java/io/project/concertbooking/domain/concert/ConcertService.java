@@ -46,6 +46,7 @@ public class ConcertService {
 
         return seats;
     }
+
     public List<Seat> findSeatsWithLock(List<Long> seatIds) {
         List<Seat> seats = concertRepository.findSeatsWithLock(seatIds);
 

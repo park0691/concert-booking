@@ -31,7 +31,7 @@ public class PaymentFacade {
         Reservation reservation = reservationService.findReservation(reservationId);
 
         // 포인트를 차감한다.
-        pointService.use(user, price);
+        pointService.useWithDistributedLock(user, price);
 
         // 결제 내역을 생성한다.
         Payment payment = paymentService.createPayment(user, reservation, price, PaymentMethod.POINT);

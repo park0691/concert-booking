@@ -1,11 +1,10 @@
 package io.project.concertbooking.domain.reservation;
 
-import io.project.concertbooking.common.constants.QueueConstants;
 import io.project.concertbooking.common.exception.CustomException;
 import io.project.concertbooking.common.exception.ErrorCode;
 import io.project.concertbooking.domain.concert.*;
-import io.project.concertbooking.domain.reservation.enums.ReservationStatus;
 import io.project.concertbooking.domain.concert.enums.SeatStatus;
+import io.project.concertbooking.domain.reservation.enums.ReservationStatus;
 import io.project.concertbooking.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
